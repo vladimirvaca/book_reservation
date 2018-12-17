@@ -1,5 +1,4 @@
 {% extends 'base_templates/base_template.html' %}
-{% load static %}
 
 {% block content%}
 <header>
@@ -44,7 +43,7 @@
             <p class="lead text-muted">Keep track of book reservations in your library. Add categories, <br>
                 add books and keep under control how long your book will remain for rent.</p>
             <p>
-                <a href="#" class="btn btn-primary my-2">Login to the administrators site</a>
+                <a href="{% url 'login' %}" class="btn btn-primary my-2">Login to the administrators site</a>
                 <a href="#" class="btn btn-secondary my-2">See catalog of books</a>
             </p>
         </div>
