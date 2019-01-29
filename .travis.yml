@@ -1,0 +1,10 @@
+language: python
+    python:
+      - "2.7"    
+    env: 
+      -DJANGO=1.11
+    install: 
+      - pip install -r requeriments.txt
+    script:
+      - pylint --load-plugins pylint_django login/ reserve/ category/ book/
+      - python manage.py test
