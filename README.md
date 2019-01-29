@@ -8,7 +8,7 @@ This project allows a librarian to enter books and their respective categories. 
 
 2. Clone or download this project inside of previously environment created.
 
-3. Install requeriments.txt => ```$ pip install -r requeriments.txt```
+3. Install requeriments.txt => ```$ pip install -r requirements.txt```
 
 4. Run makemigrations => ```$ python manage.py makemigrations```
 

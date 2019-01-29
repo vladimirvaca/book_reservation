@@ -8,13 +8,13 @@ $('#form_signin').submit(function (event) {
         success: function (data) {
             switch (parseInt(data.status)) {
                 case -1:
-                    $.notify(data.message, data.type);
+                    showAlert(data.type, data.message);
                     break;
                 case 0:
-                    $.notify(data.message, data.type);
+                    showAlert(data.type, data.message);
                     break;
                 case 1:
-                    $.notify(data.message, data.type);
+                    showAlert(data.type, data.message);
                     window.location.replace("/dashboard");
                     break;
             }
@@ -24,3 +24,4 @@ $('#form_signin').submit(function (event) {
         }
     });
 });
+

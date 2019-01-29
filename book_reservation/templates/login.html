@@ -13,8 +13,8 @@
         <i class="fas fa-book fa-5x mb-4"></i>
         <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
     </div>
-    <input id="inputEmail" class="form-control" placeholder="User Name" name="username" autofocus>
-    <input type="password" id="inputPassword" class="form-control" name="password" placeholder="Password">
+    <input class="form-control" placeholder="User Name" name="username" autofocus>
+    <input type="password" class="form-control" name="password" placeholder="Password">
     <div class="checkbox mb-3">
         <label>
             <input type="checkbox" value="remember-me"> Remember me
@@ -26,5 +26,5 @@
 {% endblock content %}
 
 {% block js %}
-<script src="{% static 'js/login/login.js' %}"></script>
+<script src="{% static 'js/login.js' %}"></script>
 {% endblock js %}

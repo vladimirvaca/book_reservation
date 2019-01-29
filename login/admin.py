@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+""" Add the login module to the Django admin """
 
-from django.contrib import admin
+from __future__ import unicode_literals
 
 # Register your models here.

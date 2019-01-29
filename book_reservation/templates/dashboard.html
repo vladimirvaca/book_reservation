@@ -7,11 +7,16 @@
 
 {% block content%}
 
+{% include 'forms/category_form.html' %}
+
 <nav class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="{% url 'index' %}"><i class="fas fa-book fa-lg"></i> Book Reservation</a>
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="{% url 'index' %}">
+        <i class="fas fa-book fa-lg"></i>
+        Book Reservation
+    </a>
     <ul class="navbar-nav px-3">
         <li class="nav-item text-nowrap">
-            <a class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i> Sign out</a>                        
+            <a class="nav-link" href="#"><i class="fas fa-sign-out-alt"></i> Sign out</a>
         </li>
     </ul>
 </nav>
@@ -37,7 +42,7 @@
                 </h6>
                 <ul class="nav flex-column mb-2">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{% url 'category'%}">
                             Categories
                             <i class="fas fa-tags"></i>
                         </a>
@@ -53,6 +58,17 @@
         </nav>
 
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+            {% block functionality %}
+            <div style="padding-top: 3vh;">
+                <button type="button" class="btn btn-outline-dark btn-sm active" onclick="$('#category_modal').modal('show')">
+                    <i class="fas fa-tags"></i>&MediumSpace;
+                    Category
+                </button>
+                <button type="button" class="btn btn-outline-dark btn-sm active">
+                    <i class="fas fa-book"></i>&MediumSpace;
+                    Book
+                </button>
+            </div>
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 <h1 class="h2">Reservations</h1>
             </div>
@@ -85,8 +101,13 @@
                     </tbody>
                 </table>
             </div>
+            {% endblock functionality %}
         </main>
     </div>
 </div>
 
 {% endblock content %}
+
+{% block js %}
+<script src="{% static 'js/category.js' %}"></script>
+{% endblock js %}

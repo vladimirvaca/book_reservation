@@ -17,10 +17,10 @@ def index(request):
 
 def signin_user(request):
     if request.method == 'POST':
-        formulario = LoguinForm(request.POST)
-        if formulario.is_valid():
-            username = formulario.cleaned_data['username']
-            password = formulario.cleaned_data['password']
+        form = LoguinForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
