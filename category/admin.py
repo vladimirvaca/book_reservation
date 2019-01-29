@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+'''
+Module Admin, modify if is necessary
+'''
 from __future__ import unicode_literals
-
-from django.contrib import admin
 
 # Register your models here.
