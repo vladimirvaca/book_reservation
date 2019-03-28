@@ -1,0 +1,45 @@
+<div class="modal fade" id="book_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Books</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="needs-validation" id="form_book" method="POST" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" id="book_label_id" name="id" value="">
+                    <div class="form-group">
+                        <label for="exampleFormControlInput1">Serial Number</label>
+                        <input type="text" class="form-control danger" id="category_label_serial_number" name="number_serie"
+                            placeholder="0123456789" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1">Book</label>
+                        <input type="text" class="form-control" id="book_label_name" name="name" placeholder="Name of book..."
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1">Category</label>
+                        <input type="text" class="form-control form-control-sm" id="search_label_category" placeholder="Search Category">
+                        <br>
+                        <select id="select_category" name="category_book" class="custom-select custom-select">
+                            <option selected>Search Category</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1">Resume</label>
+                        <input type="text" class="form-control" id="book_label_resume" name="resume" placeholder="Resume of book"
+                            required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button id="book_button_form" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

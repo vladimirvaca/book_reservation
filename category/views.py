@@ -29,7 +29,6 @@ def save_category(request):
 
 @login_required(login_url='/signin')
 def edit_category(request, id):
-    print 'category ==> ', id
     category = Category.objects.get(pk=id)
     if request.method == 'POST':
         form = CategoryForm(request.POST, instance=category)
@@ -49,7 +48,21 @@ def get_categories(request):
         return JsonResponse({"data": categories}, safe=False)
 
 
-def delete_category(request, id):
-    category = Category.objects.get(pk=id)
-    category.delete()
-    return JsonResponse({"status": "1", "type": "success", "message": "Category deleted."})
+@login_required(login_url='/signin')
+def get_categories_search(request):
+    if request.method == 'GET':
+        criteria = "'%" + request.GET['criteria'] + "%'"
+        categories_raw = list(Category.objects.raw(
+            "SELECT * FROM category_category WHERE category_category.category LIKE {0} LIMIT 5".format(criteria)))
+        categories = [{"id": r.id, "category": r.category,
+                       "description": r.description} for r in categories_raw]
+        return JsonResponse(categories, safe=False)
+
+
+@login_required(login_url='/signin')
+def delete_category(request):
+    if request.method == 'POST':
+        id_category = request.POST['delete_category_id']
+        category = Category.objects.get(pk=id_category)
+        category.delete()
+        return JsonResponse({"status": "1", "type": "success", "message": "Category deleted."})
