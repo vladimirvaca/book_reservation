@@ -6,6 +6,37 @@
 
 {% include 'forms/category_form.html'%}
 
+<div id="category_modal_delete" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Category</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="form_delete_category">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-danger" role="alert">
+                        Are you sure to like delete this category ?
+                    </div>
+                    <p>
+                        <h4 id="category_to_delete">
+                            Category Name
+                        </h4>
+                    </p>
+                    <input type="hidden" val="" id="category_delete_value" name="delete_category_id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteCategory()">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <hr>
 <button type="button" class="btn btn-outline-dark btn-sm active" onclick="showModal()">
     <i class="fas fa-tags"></i>&MediumSpace;
@@ -26,3 +57,7 @@
     </table>
 </div>
 {% endblock functionality %}
+
+{% block js %}
+<script src="{% static 'js/category.js' %}"></script>
+{% endblock js %}
