@@ -8,4 +8,7 @@ from django.apps import AppConfig
 
 
 class CategoryConfig(AppConfig):
+    '''
+    Configuration name
+    '''
     name = 'category'

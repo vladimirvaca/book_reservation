@@ -1,14 +1,3 @@
-var forms = document.getElementsByClassName('needs-validation');
-
-var validation = Array.prototype.filter.call(forms, function (form) {
-    form.addEventListener('submit', function (event) {
-        if (form.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        form.classList.add('was-validated');
-    }, false);
-});
 
 var categoryTable = $('#category_table').DataTable({
     'ajax': './get',
@@ -78,8 +67,34 @@ $('#category_table tbody').on('click', '#edit_category_btn', function () {
 
 $('#category_table tbody').on('click', '#remove_category_btn', function () {
     let data = categoryTable.row($(this).parents('tr')).data();
-
+    $('#category_delete_value').val(data.id);
+    $('#category_to_delete').html(data.category);
+    $('#category_modal_delete').modal('show');
 });
+
+function deleteCategory() {
+    $.ajax({
+        url: '/category/delete/',
+        data: $("#form_delete_category").serialize(),
+        type: "POST",
+        success: function (data) {
+            switch (parseInt(data.status)) {
+                case 1:
+                    categoryTable.ajax.reload(null, false);
+                    $('#category_modal_delete').modal('hide');
+                    showAlert(data.type, data.message);
+                    break;
+                default:
+                    showAlert('error', 'Action not complete.');
+                    break;
+
+            }
+        },
+        error: function () {
+            $.notify('This resource is not avalaible', 'error');
+        }
+    });
+}
 
 function showModal() {
     // Button text and css
@@ -90,6 +105,8 @@ function showModal() {
     $('#category_label_id').val('');
     $('#category_label_category').val('');
     $('#category_label_description').val('');
+    $('#category_label_description').val('');
+    search_label_category
     $('#category_modal').modal('show');
     //Validation of form
     $('#form_category').removeClass();
