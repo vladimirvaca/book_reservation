@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
+'''
+Tests for app reservation
+'''
 from __future__ import unicode_literals
-
-from django.test import TestCase
-
-# Create your tests here.

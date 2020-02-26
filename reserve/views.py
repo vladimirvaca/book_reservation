@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
+'''
+Views for app login
+'''
 from __future__ import unicode_literals
-
-from django.shortcuts import render
-
-# Create your views here.
