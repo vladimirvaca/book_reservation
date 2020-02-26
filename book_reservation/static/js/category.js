@@ -106,7 +106,7 @@ function showModal() {
     $('#category_label_category').val('');
     $('#category_label_description').val('');
     $('#category_label_description').val('');
-    search_label_category
+    //search_label_category
     $('#category_modal').modal('show');
     //Validation of form
     $('#form_category').removeClass();
