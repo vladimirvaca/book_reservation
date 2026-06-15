@@ -1,100 +1,383 @@
+/* ============================================================
+   DASHBOARD / ADMIN LAYOUT
+   Dark sidebar + warm cream main content
+   ============================================================ */
+
 body {
-    font-size: .875rem;
-  }
-  
-  .feather {
-    width: 16px;
-    height: 16px;
-    vertical-align: text-bottom;
-  }
-  
-  /*
-   * Sidebar
-   */
-  
-  .sidebar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 100; /* Behind the navbar */
-    padding: 48px 0 0; /* Height of navbar */
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-  }
-  
-  .sidebar-sticky {
-    position: relative;
-    top: 0;
-    height: calc(100vh - 48px);
-    padding-top: .5rem;
-    overflow-x: hidden;
-    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-  }
-  
-  @supports ((position: -webkit-sticky) or (position: sticky)) {
-    .sidebar-sticky {
-      position: -webkit-sticky;
-      position: sticky;
-    }
-  }
-  
-  .sidebar .nav-link {
-    font-weight: 500;
-    color: #333;
-  }
-  
-  .sidebar .nav-link .feather {
-    margin-right: 4px;
-    color: #999;
-  }
-  
-  .sidebar .nav-link.active {
-    color: #007bff;
-  }
-  
-  .sidebar .nav-link:hover .feather,
-  .sidebar .nav-link.active .feather {
-    color: inherit;
-  }
-  
-  .sidebar-heading {
-    font-size: .75rem;
-    text-transform: uppercase;
-  }
-  
-  /*
-   * Content
-   */
-  
-  [role="main"] {
-    padding-top: 48px; /* Space for fixed navbar */
-  }
-  
-  /*
-   * Navbar
-   */
-  
-  .navbar-brand {
-    padding-top: .75rem;
-    padding-bottom: .75rem;
-    font-size: 1rem;
-    background-color: rgba(0, 0, 0, .25);
-    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
-  }
-  
-  .navbar .form-control {
-    padding: .75rem 1rem;
-    border-width: 0;
-    border-radius: 0;
-  }
-  
-  .form-control-dark {
-    color: #fff;
-    background-color: rgba(255, 255, 255, .1);
-    border-color: rgba(255, 255, 255, .1);
-  }
-  
-  .form-control-dark:focus {
-    border-color: transparent;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, .25);
-  }
+  background: var(--cream);
+  font-size: .875rem;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.lbr-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 220px;
+  height: 100vh;
+  background: var(--surface);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: transform .25s ease;
+}
+
+/* Brand */
+.lbr-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: 1.4rem 1.25rem 1.2rem;
+  border-bottom: 1px solid var(--border-dark);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.lbr-sidebar-brand:hover { text-decoration: none; }
+.lbr-sidebar-brand i { color: var(--gold); font-size: 1.05rem; flex-shrink: 0; }
+.lbr-sidebar-brand-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--cream);
+  letter-spacing: .3px;
+  line-height: 1.2;
+}
+
+/* Nav body */
+.lbr-sidebar-body {
+  flex: 1;
+  padding: 1.25rem .75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.lbr-nav-section { margin-bottom: 1.5rem; }
+.lbr-nav-section-label {
+  font-size: .57rem;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--muted-on-dark);
+  opacity: .5;
+  padding: 0 .625rem;
+  margin-bottom: .4rem;
+  display: block;
+}
+
+.lbr-nav-link {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .55rem .625rem;
+  border-radius: 7px;
+  color: rgba(232,224,208,.5);
+  font-size: .84rem;
+  font-weight: 400;
+  letter-spacing: .15px;
+  text-decoration: none;
+  transition: background .15s, color .15s;
+  margin-bottom: 1px;
+  border: 1px solid transparent;
+}
+.lbr-nav-link:hover {
+  background: rgba(255,255,255,.05);
+  color: var(--text-on-dark);
+  text-decoration: none;
+}
+.lbr-nav-link.active {
+  background: var(--gold-dim);
+  color: var(--gold-light);
+  border-color: rgba(201,145,42,.14);
+}
+.lbr-nav-link i {
+  width: 15px;
+  text-align: center;
+  font-size: .8rem;
+  flex-shrink: 0;
+}
+/* Button reset so form <button> can use lbr-nav-link */
+button.lbr-nav-link {
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  width: 100%;
+}
+.lbr-nav-link-danger:hover {
+  background: rgba(190,59,46,.08) !important;
+  color: #e05c4f !important;
+}
+.lbr-nav-link-danger:hover i { color: #e05c4f !important; }
+
+/* Sidebar footer */
+.lbr-sidebar-footer {
+  padding: .75rem;
+  border-top: 1px solid var(--border-dark);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+.lbr-topbar {
+  position: fixed;
+  top: 0;
+  left: 220px;
+  right: 0;
+  height: 56px;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  gap: 1rem;
+}
+
+.lbr-topbar-title {
+  flex: 1;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: .15px;
+}
+
+.lbr-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+}
+
+.lbr-user-chip {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: .28rem .875rem .28rem .3rem;
+}
+.lbr-user-avatar {
+  width: 28px;
+  height: 28px;
+  background: var(--surface);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  font-size: .7rem;
+  flex-shrink: 0;
+}
+.lbr-user-chip-name {
+  font-size: .775rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: .15px;
+}
+
+/* ============================================================
+   MAIN CONTENT AREA
+   ============================================================ */
+.lbr-main {
+  margin-left: 220px;
+  padding-top: 56px;
+  min-height: 100vh;
+}
+
+.lbr-content {
+  padding: 1.75rem 1.75rem;
+}
+
+/* Page header */
+.lbr-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--border);
+}
+.lbr-page-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.75rem;
+  font-weight: 400;
+  color: var(--text);
+  letter-spacing: -.4px;
+  margin: 0;
+  line-height: 1;
+}
+.lbr-page-subtitle {
+  font-size: .78rem;
+  color: var(--text-muted);
+  font-weight: 300;
+  margin: .25rem 0 0;
+}
+
+/* Stat cards */
+.lbr-stat-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.4rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+.lbr-stat-card::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  opacity: .06;
+}
+.lbr-stat-gold::after    { background: var(--gold); }
+.lbr-stat-dark::after    { background: var(--surface); }
+.lbr-stat-neutral::after { background: var(--text-muted); }
+
+.lbr-stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+.lbr-stat-icon-gold    { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(201,145,42,.2); }
+.lbr-stat-icon-dark    { background: rgba(26,22,17,.06); color: var(--surface); border: 1px solid rgba(26,22,17,.1); }
+.lbr-stat-icon-neutral { background: rgba(107,95,82,.07); color: var(--text-muted); border: 1px solid rgba(107,95,82,.12); }
+
+.lbr-stat-label {
+  font-size: .67rem;
+  font-weight: 600;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: .15rem;
+}
+.lbr-stat-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -.5px;
+  line-height: 1;
+}
+
+/* Welcome card (dashboard home) */
+.lbr-welcome-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 2rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.lbr-welcome-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+.lbr-welcome-glow {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(201,145,42,.07) 0%, transparent 70%);
+  right: -40px;
+  top: -40px;
+  pointer-events: none;
+}
+.lbr-welcome-text { position: relative; z-index: 2; }
+.lbr-welcome-eyebrow {
+  font-size: .6rem;
+  font-weight: 600;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: .4rem;
+}
+.lbr-welcome-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--cream);
+  margin-bottom: .3rem;
+  letter-spacing: -.3px;
+}
+.lbr-welcome-sub {
+  font-size: .82rem;
+  color: var(--muted-on-dark);
+  font-weight: 300;
+  margin: 0;
+}
+.lbr-welcome-actions {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  gap: .625rem;
+  flex-shrink: 0;
+}
+
+/* Table panel */
+.lbr-table-panel {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.lbr-table-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  background: #faf8f3;
+}
+.lbr-table-panel-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--text);
+  margin: 0;
+  letter-spacing: .15px;
+}
+.lbr-table-panel .dataTables_wrapper { padding: .875rem 1.25rem 1.25rem; }
+.lbr-table-panel table.dataTable { margin-top: 0 !important; margin-bottom: 0 !important; }
+
+/* Empty / reservation placeholder */
+.lbr-placeholder-table { padding: 3.5rem 1.5rem 1.5rem; }
+.lbr-placeholder-table table {
+  font-size: .82rem;
+  color: var(--text-muted);
+}
+.lbr-placeholder-table thead th {
+  background: transparent !important;
+  border-bottom: 2px solid var(--border) !important;
+  padding: .5rem .75rem !important;
+}
+.lbr-placeholder-table tbody td {
+  border-top: 1px solid var(--border) !important;
+  padding: .625rem .75rem !important;
+  color: #c0b5a8;
+}

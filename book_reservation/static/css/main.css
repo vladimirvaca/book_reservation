@@ -1,0 +1,238 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap');
+
+/* ============================================================
+   GLOBAL DESIGN TOKENS — "The Archivist"
+   ============================================================ */
+:root {
+  --ink:              #0f0c08;
+  --surface:          #1a1611;
+  --surface-2:        #231f19;
+  --surface-3:        #2d2820;
+  --gold:             #c9912a;
+  --gold-light:       #e8c97e;
+  --gold-dim:         rgba(201,145,42,.13);
+  --cream:            #f5f0e8;
+  --cream-dark:       #ede8df;
+  --text-on-dark:     #e8e0d0;
+  --muted-on-dark:    #6e6252;
+  --text:             #1a1209;
+  --text-muted:       #6b5f52;
+  --border-dark:      rgba(255,255,255,.07);
+  --border:           #ddd6cc;
+  --danger:           #be3b2e;
+  --danger-dim:       #fce9e7;
+  --radius:           8px;
+  --radius-lg:        13px;
+  --shadow:           0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:        0 4px 14px rgba(0,0,0,.09), 0 2px 6px rgba(0,0,0,.05);
+  --shadow-lg:        0 20px 60px rgba(0,0,0,.18), 0 8px 24px rgba(0,0,0,.1);
+}
+
+body {
+  font-family: 'Jost', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---- Form controls ---- */
+.form-control {
+  font-family: 'Jost', sans-serif;
+  font-size: .9rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: .55rem .875rem;
+  color: var(--text);
+  background: #fff;
+  transition: border-color .17s, box-shadow .17s;
+}
+.form-control:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201,145,42,.11);
+  outline: none;
+}
+.form-control::placeholder { color: #c0b8ae; font-weight: 300; }
+
+.custom-select {
+  font-family: 'Jost', sans-serif;
+  font-size: .875rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+}
+.custom-select:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(201,145,42,.11);
+  outline: none;
+}
+
+textarea.form-control { padding: .65rem .875rem; }
+
+/* ---- Buttons ---- */
+.btn {
+  font-family: 'Jost', sans-serif;
+  font-weight: 500;
+  font-size: .875rem;
+  letter-spacing: .25px;
+  border-radius: var(--radius);
+  transition: all .17s;
+}
+.btn-primary {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #fff;
+}
+.btn-primary:hover, .btn-primary:focus {
+  background: #b07d22;
+  border-color: #b07d22;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(201,145,42,.28);
+}
+.btn-primary:active { transform: translateY(0); }
+.btn-secondary {
+  background: var(--cream);
+  border-color: var(--border);
+  color: var(--text);
+}
+.btn-secondary:hover {
+  background: var(--cream-dark);
+  border-color: var(--border);
+  color: var(--text);
+}
+.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+.btn-danger:hover {
+  background: #a5322a;
+  border-color: #a5322a;
+  color: #fff;
+}
+.btn-warning {
+  background: #c97c1a;
+  border-color: #c97c1a;
+  color: #fff;
+}
+.btn-warning:hover {
+  background: #b06a13;
+  border-color: #b06a13;
+  color: #fff;
+}
+
+/* ---- Modal chrome ---- */
+.modal-content {
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.modal-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-dark);
+  padding: 1.25rem 1.5rem;
+  align-items: center;
+}
+.modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: var(--text-on-dark);
+  letter-spacing: .3px;
+}
+.modal-header .close {
+  color: var(--muted-on-dark);
+  opacity: 1;
+  font-size: 1.5rem;
+  font-weight: 300;
+  text-shadow: none;
+  transition: color .15s;
+  padding: .25rem .5rem;
+}
+.modal-header .close:hover { color: var(--text-on-dark); }
+.modal-body {
+  padding: 1.75rem 1.5rem;
+  background: #fff;
+}
+.modal-footer {
+  background: var(--cream);
+  border-top: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+  gap: .5rem;
+}
+.modal-body label {
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .7px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: .4rem;
+}
+.modal-body .form-group { margin-bottom: 1.25rem; }
+
+/* ---- Alert in delete modals ---- */
+.alert-danger {
+  background: var(--danger-dim);
+  border: 1px solid rgba(190,59,46,.18);
+  color: var(--danger);
+  border-radius: var(--radius);
+  font-size: .875rem;
+}
+
+/* ---- DataTables ---- */
+table.dataTable { border-collapse: collapse !important; }
+table.dataTable thead th {
+  font-family: 'Jost', sans-serif;
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .9px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border) !important;
+  background: #faf8f3 !important;
+  padding: .875rem 1rem;
+  white-space: nowrap;
+}
+table.dataTable tbody td {
+  padding: .875rem 1rem;
+  border-top: 1px solid var(--border) !important;
+  color: var(--text);
+  font-size: .875rem;
+  vertical-align: middle;
+}
+table.dataTable tbody tr:hover td { background: #faf8f3; }
+div.dataTables_wrapper .dataTables_filter input {
+  font-family: 'Jost', sans-serif;
+  border: 1.5px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  padding: .38rem .875rem !important;
+  font-size: .8rem !important;
+  margin-left: .4rem;
+  transition: border-color .17s;
+  outline: none;
+}
+div.dataTables_wrapper .dataTables_filter input:focus {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 3px rgba(201,145,42,.11) !important;
+}
+div.dataTables_wrapper .dataTables_length select {
+  font-family: 'Jost', sans-serif;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: .3rem .5rem;
+  font-size: .8rem;
+}
+div.dataTables_wrapper .dataTables_info,
+div.dataTables_wrapper .dataTables_length label {
+  font-size: .78rem;
+  color: var(--text-muted);
+}
+.paginate_button.page-item .page-link {
+  font-size: .78rem;
+  border-color: var(--border);
+  color: var(--text);
+}
+.paginate_button.page-item.active .page-link {
+  background: var(--gold) !important;
+  border-color: var(--gold) !important;
+}

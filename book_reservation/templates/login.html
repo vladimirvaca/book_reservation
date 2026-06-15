@@ -5,24 +5,93 @@
 <link rel="stylesheet" href="{% static 'css/login-style.css' %}" />
 {% endblock css %}
 
-{% block content%}
+{% block content %}
+<div class="lbr-auth">
 
-<form class="form-signin" id="form_signin" action="{% url 'signin' %}" method="POST">
-    {% csrf_token %}
-    <div style="text-align: center">
-        <i class="fas fa-book fa-5x mb-4"></i>
-        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
+    <!-- ======================================================
+         LEFT PANEL — branding
+         ====================================================== -->
+    <div class="lbr-auth-left">
+        <a href="{% url 'index' %}" class="lbr-auth-logo">
+            <i class="fas fa-book-open"></i>
+            Book Reservation
+        </a>
+
+        <div class="lbr-auth-hero">
+            <p class="lbr-auth-hero-eyebrow">Library Management</p>
+            <h2 class="lbr-auth-hero-title">
+                Your library,<br><em>at a glance.</em>
+            </h2>
+            <p class="lbr-auth-hero-desc">
+                Manage categories, books, and reservations
+                from one refined interface.
+            </p>
+            <div class="lbr-auth-feature">
+                <i class="fas fa-check"></i>
+                <span>Manage book categories</span>
+            </div>
+            <div class="lbr-auth-feature">
+                <i class="fas fa-check"></i>
+                <span>Track your inventory</span>
+            </div>
+            <div class="lbr-auth-feature">
+                <i class="fas fa-check"></i>
+                <span>Control reservations by time</span>
+            </div>
+        </div>
+
+        <p class="lbr-auth-footer-note">&copy; 2018–{% now "Y" %} Book Reservation</p>
     </div>
-    <input class="form-control" placeholder="User Name" name="username" autofocus>
-    <input type="password" class="form-control" name="password" placeholder="Password">
-    <div class="checkbox mb-3">
-        <label>
-            <input type="checkbox" value="remember-me"> Remember me
-        </label>
+
+    <!-- ======================================================
+         RIGHT PANEL — form
+         ====================================================== -->
+    <div class="lbr-auth-right">
+        <div class="lbr-form-box">
+            <p class="lbr-form-eyebrow">Administrator Access</p>
+            <h1 class="lbr-form-title">Welcome back</h1>
+            <p class="lbr-form-sub">Sign in to your account to continue</p>
+
+            <form id="form_signin" action="{% url 'signin' %}" method="POST">
+                {% csrf_token %}
+
+                <div>
+                    <label class="lbr-field-label" for="id_username">Username</label>
+                    <div class="lbr-field-wrap">
+                        <i class="fas fa-user lbr-field-icon"></i>
+                        <input class="lbr-field" id="id_username" name="username"
+                               type="text" placeholder="Enter your username" autofocus>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="lbr-field-label" for="id_password">Password</label>
+                    <div class="lbr-field-wrap">
+                        <i class="fas fa-lock lbr-field-icon"></i>
+                        <input class="lbr-field" id="id_password" name="password"
+                               type="password" placeholder="Enter your password">
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="rememberMe">
+                        <label class="custom-control-label lbr-remember-label" for="rememberMe">
+                            Remember me
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="lbr-btn-submit">
+                    Sign In &nbsp;<i class="fas fa-arrow-right fa-xs"></i>
+                </button>
+            </form>
+
+            <p class="lbr-auth-copyright">&copy; 2018–{% now "Y" %} Book Reservation</p>
+        </div>
     </div>
-    <button class="btn btn-lg btn-primary btn-block">Sign in</button>
-    <p class="mt-5 mb-3 text-muted">&copy; 2018 - {% now "Y" %}</p>
-</form>
+
+</div>
 {% endblock content %}
 
 {% block js %}

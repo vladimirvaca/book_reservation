@@ -14,13 +14,13 @@ var categoryTable = $('#category_table').DataTable({
             'targets': -2,
             'data': '',
             'width': '5%',
-            'defaultContent': '<button id="edit_category_btn" class="btn btn-secondary btn-sm"><span class="far fa-edit fa-xs"></button>'
+            'defaultContent': '<button id="edit_category_btn" class="btn btn-secondary btn-sm"><i class="far fa-edit"></i></button>'
         },
         {
             'targets': -1,
             'data': '',
             'width': '5%',
-            'defaultContent': '<button id="remove_category_btn" class="btn btn-danger btn-sm"><span class="fas fa-trash-alt fa-xs"></button>'
+            'defaultContent': '<button id="remove_category_btn" class="btn btn-danger btn-sm"><i class="fas fa-trash-alt"></i></button>'
         }
     ]
 });

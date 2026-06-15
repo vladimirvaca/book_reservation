@@ -1,107 +1,146 @@
 {% extends 'base_templates/base_template.html' %}
+{% load static %}
 
-{% block content%}
-<header>
-    <div class="collapse bg-dark" id="navbarHeader">
-        <div class="container">
-            <div class="row">
-                <div class="col-sm-8 col-md-7 py-4">
-                    <h4 class="text-white">About</h4>
-                    <p class="text-muted">This project was built to test my programming skills with python and django.
-                         The project is licensed with MIT, so you can feel free to use it and modify it as you like.</p>
-                </div>
-                <div class="col-sm-4 offset-md-1 py-4">
-                    <h4 class="text-white">Contact</h4>
-                    <ul class="list-unstyled">
-                        <li><span class="fab fa-twitter text-white">&MediumSpace;</span><a href="https://twitter.com/rvladimirvm" class="text-white">Follow on Twitter </span></a></li>
-                        <li><span class="fab fa-facebook-f text-white">&MediumSpace;</span><a href="#" class="text-white">Like on Facebook</a></li>
-                        <li><span class="fas fa-envelope text-white">&MediumSpace;</span><a href="#" class="text-white">Email me</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="navbar navbar-dark bg-dark shadow-sm">
-        <div class="container d-flex justify-content-between">
-            <a href="#" class="navbar-brand d-flex align-items-center">
-                <i class="fas fa-book fa-3x"></i>
-                <strong>&MediumSpace; Library</strong>
-            </a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader"
-                aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-        </div>
-    </div>
-</header>
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/index-style.css' %}" />
+{% endblock css %}
 
-<main role="main">
-    
-    <section class="jumbotron text-center">
-        <div class="container">
-            <h1 class="jumbotron-heading">Book Reservation</h1>
-            <p class="lead text-muted">Keep track of book reservations in your library. Add categories, <br>
-                add books and keep under control how long your book will remain for rent.</p>
-            <p>
-                <a href="{% url 'signin' %}" class="btn btn-primary my-2">Login to the administrators site</a>
-                <a href="#" class="btn btn-secondary my-2">See catalog of books</a>
-            </p>
-        </div>
-    </section>
+{% block content %}
 
-    <div class="album py-5 bg-light">
-        <div class="container">
-            <h2>Features :</h2>
-            <br>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="card mb-4 shadow-sm">
-                        <img class="card-img-top" data-src="holder.js/100px225?theme=thumb&bg=55595c&fg=eceeef&text=Thumbnail"
-                            alt="Card image cap">
-                        <div class="card-body">
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in
-                                to additional content. This content is a little bit longer.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card mb-4 shadow-sm">
-                        <img class="card-img-top" data-src="holder.js/100px225?theme=thumb&bg=55595c&fg=eceeef&text=Thumbnail"
-                            alt="Card image cap">
-                        <div class="card-body">
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in
-                                to additional content. This content is a little bit longer.</p>                      
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card mb-4 shadow-sm">
-                        <img class="card-img-top" data-src="holder.js/100px225?theme=thumb&bg=55595c&fg=eceeef&text=Thumbnail"
-                            alt="Card image cap">
-                        <div class="card-body">
-                            <p class="card-text">This is a wider card with supporting text below as a natural lead-in
-                                to additional content. This content is a little bit longer.</p>                          
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</main>
-
-<footer class="text-muted">
+<!-- ======================================================
+     NAVBAR
+     ====================================================== -->
+<nav class="navbar navbar-expand-lg lbr-navbar sticky-top">
     <div class="container">
-        <p class="float-right">
-            <a href="#">Back to top</a>
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-book-open"></i>
+            Book Reservation
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainNav"
+            aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav ml-auto align-items-lg-center">
+                <li class="nav-item">
+                    <a class="nav-link" href="#features">Features</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="https://github.com/vladimirvaca" target="_blank">GitHub</a>
+                </li>
+                <li class="nav-item ml-lg-3 mt-2 mt-lg-0">
+                    <a href="{% url 'signin' %}" class="lbr-btn-signin-nav nav-link">
+                        Sign In &nbsp;<i class="fas fa-arrow-right fa-xs"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- ======================================================
+     HERO
+     ====================================================== -->
+<section class="lbr-hero">
+    <div class="container lbr-hero-inner">
+        <div class="lbr-eyebrow">Library Management System</div>
+        <h1 class="lbr-hero-title">
+            Your library,<br><em>organised.</em>
+        </h1>
+        <p class="lbr-hero-sub">
+            Keep track of book reservations, categories, and your entire
+            collection — all from one elegant interface.
         </p>
-        <p>Did you find this project ? Enter Github and 
-            <a href="https://github.com/rvladimirvm">visit my page</a> to see my projects, which can be useful for you.
-        </p>
+        <div class="lbr-hero-actions">
+            <a href="{% url 'signin' %}" class="lbr-btn-primary">
+                <i class="fas fa-sign-in-alt"></i> Get Started
+            </a>
+            <a href="#features" class="lbr-btn-ghost">
+                <i class="fas fa-chevron-down"></i> Learn More
+            </a>
+        </div>
+    </div>
+    <div class="lbr-scroll-hint">
+        <i class="fas fa-chevron-down"></i>
+        scroll
+    </div>
+</section>
+
+<hr class="lbr-section-divider">
+
+<!-- ======================================================
+     FEATURES
+     ====================================================== -->
+<section id="features" class="lbr-features">
+    <div class="container">
+        <div class="row lbr-features-header align-items-end">
+            <div class="col-md-7">
+                <p class="lbr-section-label">What's inside</p>
+                <h2 class="lbr-section-title">Everything a librarian needs</h2>
+            </div>
+            <div class="col-md-5 d-none d-md-flex justify-content-end align-items-end">
+                <a href="{% url 'signin' %}" class="lbr-btn-primary">
+                    Open the app <i class="fas fa-arrow-right fa-xs ml-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="lbr-feature-row">
+            <span class="lbr-feature-num">01</span>
+            <div class="lbr-feature-icon-box"><i class="fas fa-tags"></i></div>
+            <div class="lbr-feature-text">
+                <h5>Manage Categories</h5>
+                <p>Organise your collection into clear categories. Create, edit, and delete
+                   categories — and search them instantly with live filtering.</p>
+            </div>
+        </div>
+
+        <div class="lbr-feature-row">
+            <span class="lbr-feature-num">02</span>
+            <div class="lbr-feature-icon-box"><i class="fas fa-book"></i></div>
+            <div class="lbr-feature-text">
+                <h5>Manage Books</h5>
+                <p>Add books with serial numbers, assign them to categories, and maintain
+                   a complete, searchable catalog of your entire library.</p>
+            </div>
+        </div>
+
+        <div class="lbr-feature-row">
+            <span class="lbr-feature-num">03</span>
+            <div class="lbr-feature-icon-box"><i class="fas fa-clock"></i></div>
+            <div class="lbr-feature-text">
+                <h5>Track Reservations</h5>
+                <p>Reserve books by time, monitor due dates, and maintain full visibility
+                   over what's available and what's currently on loan.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ======================================================
+     FOOTER
+     ====================================================== -->
+<footer class="lbr-footer">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <p class="lbr-footer-brand-name">
+                    <i class="fas fa-book-open"></i>Book Reservation
+                </p>
+                <p class="lbr-footer-tagline">Open-source library management. MIT License.</p>
+            </div>
+            <div class="col-md-6 text-md-right mt-3 mt-md-0">
+                <a href="https://twitter.com/rwcoder" target="_blank" class="lbr-footer-link mr-4">
+                    <i class="fab fa-twitter"></i> Twitter
+                </a>
+                <a href="https://github.com/rvladimirvm" target="_blank" class="lbr-footer-link">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+            </div>
+        </div>
+        <hr class="lbr-footer-hr">
+        <p class="lbr-footer-copy">&copy; 2018–{% now "Y" %} Book Reservation</p>
     </div>
 </footer>
-{% endblock content %}
 
-{% block js %}
-<script src="https://cdn.jsdelivr.net/npm/holderjs@2.9.9/holder.min.js"></script>
-{% endblock js %}
+{% endblock content %}
