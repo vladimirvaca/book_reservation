@@ -1,76 +1,155 @@
 # Book Reservation
 
-A web application for library management. Librarians can manage book categories and books, then reserve them by time. Built with Django and a Bootstrap 4 frontend.
+A Django web application for library management. Patrons can reserve books without an account; librarians manage the full catalog and track reservation lifecycle from a protected dashboard.
+
+## Features
+
+**Public (no login required)**
+- Reserve a book by entering a DNI/identifier, full name, start date, and return date
+- Browse available books from the landing page
+
+**Admin dashboard (login required)**
+- Manage book categories — create, edit, delete, live search
+- Manage books — create, edit, delete, assign to categories
+- View all reservations in a live DataTable
+- Track reservation status: **Reserved → Checked Out → Returned** (overdue computed automatically when the return date passes)
+- Check out and return books with one click; clear reservations
 
 ## Stack
 
 | Layer | Technology |
-|-------|-----------|
+|---|---|
 | Backend | Django 5.2 LTS |
+| WSGI server | Gunicorn 23 |
+| Static files | WhiteNoise 6 (compressed + fingerprinted) |
 | Database | SQLite |
-| Python | 3.10+ |
-| Frontend | Bootstrap 4, jQuery 3.7.1, DataTables 1.10.19 |
-| Icons | FontAwesome 5 |
+| Python | 3.13 |
+| Frontend | Bootstrap 4, jQuery 3.7.1, DataTables 1.10.19, FontAwesome 5 |
 
-## Getting started
+## Local development
 
 ```bash
 # 1. Create and activate a virtual environment
 python -m venv .venv
-
-# Windows
-.venv\Scripts\activate
-# Linux / macOS
-source .venv/bin/activate
+.venv\Scripts\activate      # Windows
+source .venv/bin/activate   # Linux / macOS
 
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Apply database migrations
+# 3. Apply migrations
 python manage.py migrate
 
 # 4. Create an admin user
 python manage.py createsuperuser
 
-# 5. Start the development server
+# 5. Start the dev server
 python manage.py runserver
 ```
 
-Then open http://127.0.0.1:8000 in your browser.
+Open http://127.0.0.1:8000 — the landing page is public. Sign in at `/signin/` to access the dashboard.
+
+## Docker deployment
+
+### Build the image
+
+```bash
+docker build -t book-reservation .
+```
+
+Static assets are collected and compressed at build time; no extra step needed.
+
+### Run
+
+```bash
+docker run -d \
+  -p 8000:8000 \
+  -e DJANGO_SECRET_KEY='your-production-secret-key' \
+  -e DJANGO_DEBUG='False' \
+  -e DJANGO_ALLOWED_HOSTS='yourdomain.com,www.yourdomain.com' \
+  -v /host/data/db.sqlite3:/app/book_reservation/db.sqlite3 \
+  -v /host/data/media:/app/book_reservation/media_files \
+  book-reservation
+```
+
+The two bind-mounts persist the SQLite database and any uploaded media files across container restarts and redeployments.
+
+### First run — create the database and admin user
+
+```bash
+# Apply migrations (only needed once, or after model changes)
+docker run --rm \
+  -e DJANGO_SECRET_KEY='your-production-secret-key' \
+  -v /host/data/db.sqlite3:/app/book_reservation/db.sqlite3 \
+  book-reservation \
+  python manage.py migrate
+
+# Create the admin account
+docker run --rm -it \
+  -e DJANGO_SECRET_KEY='your-production-secret-key' \
+  -v /host/data/db.sqlite3:/app/book_reservation/db.sqlite3 \
+  book-reservation \
+  python manage.py createsuperuser
+```
+
+### Environment variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `DJANGO_SECRET_KEY` | dev key (insecure) | **Required in production.** Django secret key. |
+| `DJANGO_DEBUG` | `True` | Set to `False` in production. |
+| `DJANGO_ALLOWED_HOSTS` | `localhost,127.0.0.1` | Comma-separated list of allowed hostnames. |
+
+> **Note:** A reverse proxy (nginx, Caddy, Traefik) in front of the container is recommended for TLS termination and domain routing when sharing a Lightsail instance with other apps.
+
+## CI / CD
+
+GitHub Actions runs three jobs on every push and pull request to `master`:
+
+| Job | What it does |
+|---|---|
+| **Lint** | `pylint --errors-only` across all apps · `isort --check` for import ordering |
+| **Test** | `python manage.py test` |
+| **Docker** | Builds the image and pushes to `ghcr.io` (master pushes only, after lint + test pass) |
+
+The Docker job uses GitHub Actions layer cache to speed up rebuilds and tags each image with both `latest` and the commit SHA for traceability.
 
 ## Project structure
 
 ```
 book_reservation/
-├── book/               # Book CRUD
-├── category/           # Category CRUD
-├── login/              # Authentication (sign in, dashboard)
-├── reserve/            # Reservation logic (in progress)
-└── book_reservation/   # Django config (settings, root URLs, templates, static)
+├── book/               # Book CRUD (models, views, forms, URLs)
+├── category/           # Category CRUD + live search
+├── login/              # Auth views: index, sign-in, dashboard
+├── reserve/            # Public reservation + dashboard management
+└── book_reservation/   # Django config — settings, root URLs, templates, static
+    ├── static/
+    │   ├── css/        # main.css, dashboard-style.css, index-style.css, login-style.css
+    │   └── js/         # book.js, category.js, reserve.js, reservations.js, utilities.js
+    └── templates/
+        ├── base_templates/base_template.html
+        ├── forms/      # Reusable modal partials
+        ├── book.html, category.html, dashboard.html, index.html, login.html
 ```
 
 ### Apps
 
 | App | Purpose |
-|-----|---------|
-| `login` | Index page, sign-in, dashboard |
+|---|---|
+| `login` | Landing page, sign-in, protected dashboard home with reservation table |
 | `book` | Add, edit, delete, and list books |
-| `category` | Add, edit, delete, and search categories |
-| `reserve` | Time-based book reservations *(not yet implemented)* |
+| `category` | Add, edit, delete, search, and list categories |
+| `reserve` | Public reservation form · dashboard management (status updates, delete) |
 
-## Architecture notes
+## Architecture
 
-- Views are **function-based** and protected with `@login_required`.
-- Data endpoints return `JsonResponse` consumed via jQuery AJAX; page views return `render()`.
-- URL configs use `re_path()` with regex patterns.
-- Templates extend `base_templates/base_template.html`, which loads all shared CSS/JS.
-
-## Known issues
-
-- `get_categories_search` builds a SQL `LIKE` query with string formatting — SQL injection risk. Should be migrated to the ORM (`Category.objects.filter(category__icontains=...)`).
-- `get_books` and `get_categories` use raw SQL (`objects.raw(...)`) where `objects.all()` / `values()` would suffice.
-- The `reserve` app has no models or views implemented yet.
+- Views are **function-based** (`@login_required(login_url='/signin')` on protected views; no decorator on public endpoints).
+- Data endpoints return `JsonResponse` consumed via jQuery AJAX. Page views return `render()`.
+- URL configs use `re_path()` with regex patterns throughout.
+- All templates extend `base_templates/base_template.html`, which loads Bootstrap 4, jQuery 3.7.1, DataTables, FontAwesome 5, and shared CSS/JS.
+- The dashboard uses DataTables with server-side AJAX reload — no full page refresh on CRUD operations.
+- Reservation status (`reserved` / `checked_out` / `returned`) is stored in the database; `overdue` is derived at query time when `end_date < today` and status is not `returned`.
 
 ## License
 
-MIT — feel free to use, modify, and contribute. Any improvement or contribution is welcome.
+MIT — free to use, modify, and contribute.
