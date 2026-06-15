@@ -44,4 +44,13 @@ def dashboard(request):
     '''
     View for load dashboard page
     '''
-    return render(request, 'dashboard.html')
+    from book.models import Book
+    from category.models import Category
+    from reserve.models import Reservation
+    active_statuses = [Reservation.STATUS_RESERVED, Reservation.STATUS_CHECKED_OUT]
+    context = {
+        'book_count': Book.objects.count(),
+        'category_count': Category.objects.count(),
+        'reservation_count': Reservation.objects.filter(status__in=active_statuses).count(),
+    }
+    return render(request, 'dashboard.html', context)

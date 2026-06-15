@@ -1,14 +1,8 @@
-# -*- coding: utf-8 -*-
 '''
-Configurations for app reserver
+Configurations for app reserve
 '''
-from __future__ import unicode_literals
-
 from django.apps import AppConfig
 
 
 class ReserveConfig(AppConfig):
-    '''
-    Configurations for app
-    '''
     name = 'reserve'

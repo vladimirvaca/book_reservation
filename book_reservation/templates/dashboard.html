@@ -9,6 +9,38 @@
 
 {% include 'forms/category_form.html' %}
 
+<!-- Reservation delete confirmation modal -->
+<div class="modal fade" id="deleteReservationModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle mr-2" style="color:var(--danger);font-size:.9rem;"></i>Clear Reservation
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:.875rem;color:var(--text-muted);margin:0;">
+                    Remove the reservation for<br>
+                    <strong id="reservation_name_to_delete" style="color:var(--text);"></strong>?
+                </p>
+            </div>
+            <div class="modal-footer">
+                <form id="form_delete_reservation" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" id="delete_reservation_id" name="delete_reservation_id">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash-alt mr-1"></i> Remove
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ======================================================
      SIDEBAR
      ====================================================== -->
@@ -92,7 +124,7 @@
                     </div>
                     <div>
                         <div class="lbr-stat-label">Books</div>
-                        <div class="lbr-stat-value">—</div>
+                        <div class="lbr-stat-value">{{ book_count }}</div>
                     </div>
                 </div>
             </div>
@@ -103,7 +135,7 @@
                     </div>
                     <div>
                         <div class="lbr-stat-label">Categories</div>
-                        <div class="lbr-stat-value">—</div>
+                        <div class="lbr-stat-value">{{ category_count }}</div>
                     </div>
                 </div>
             </div>
@@ -113,8 +145,8 @@
                         <i class="fas fa-clock"></i>
                     </div>
                     <div>
-                        <div class="lbr-stat-label">Reservations</div>
-                        <div class="lbr-stat-value">—</div>
+                        <div class="lbr-stat-label">Active Loans</div>
+                        <div class="lbr-stat-value">{{ reservation_count }}</div>
                     </div>
                 </div>
             </div>
@@ -138,31 +170,27 @@
             </div>
         </div>
 
-        <!-- Placeholder reservations table -->
+        <!-- Reservations table -->
         <div class="lbr-table-panel">
             <div class="lbr-table-panel-header">
-                <h3 class="lbr-table-panel-title">Reservations</h3>
-                <span class="badge" style="background:var(--gold-dim);color:var(--gold);
-                      font-size:.65rem;letter-spacing:.6px;padding:.35rem .7rem;border-radius:50px;">
-                    Coming Soon
-                </span>
+                <h3 class="lbr-table-panel-title">
+                    <i class="fas fa-clock mr-2" style="color:var(--gold);font-size:.85rem;"></i>Reservations
+                </h3>
             </div>
-            <div class="lbr-placeholder-table">
-                <table class="table table-sm mb-0">
+            <div class="p-3">
+                <table id="reservation_table" class="table table-hover" style="width:100%">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th>Borrower</th>
+                            <th>DNI</th>
                             <th>Book</th>
-                            <th>User</th>
-                            <th>Reserved Until</th>
+                            <th>Start Date</th>
+                            <th>Return By</th>
                             <th>Status</th>
+                            <th></th>
+                            <th></th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr><td colspan="5" class="text-center py-4" style="color:var(--text-muted);font-size:.82rem;font-weight:300;">
-                            Reservation functionality coming soon.
-                        </td></tr>
-                    </tbody>
                 </table>
             </div>
         </div>
@@ -174,4 +202,6 @@
 
 {% endblock content %}
 
-{% block js %}{% endblock js %}
+{% block js %}
+<script src="{% static 'js/reservations.js' %}"></script>
+{% endblock js %}

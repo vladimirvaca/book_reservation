@@ -365,19 +365,22 @@ button.lbr-nav-link {
 .lbr-table-panel .dataTables_wrapper { padding: .875rem 1.25rem 1.25rem; }
 .lbr-table-panel table.dataTable { margin-top: 0 !important; margin-bottom: 0 !important; }
 
-/* Empty / reservation placeholder */
-.lbr-placeholder-table { padding: 3.5rem 1.5rem 1.5rem; }
-.lbr-placeholder-table table {
-  font-size: .82rem;
-  color: var(--text-muted);
+/* Status badges */
+.lbr-status-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: .63rem;
+  font-weight: 600;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  padding: .22rem .6rem;
+  border-radius: 50px;
+  white-space: nowrap;
 }
-.lbr-placeholder-table thead th {
-  background: transparent !important;
-  border-bottom: 2px solid var(--border) !important;
-  padding: .5rem .75rem !important;
-}
-.lbr-placeholder-table tbody td {
-  border-top: 1px solid var(--border) !important;
-  padding: .625rem .75rem !important;
-  color: #c0b5a8;
-}
+.lbr-status-reserved    { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(201,145,42,.2); }
+.lbr-status-checked-out { background: rgba(37,99,235,.07); color: #2563eb; border: 1px solid rgba(37,99,235,.14); }
+.lbr-status-returned    { background: rgba(63,185,80,.07); color: #2ea043; border: 1px solid rgba(63,185,80,.18); }
+.lbr-status-overdue     { background: rgba(190,59,46,.07); color: var(--danger); border: 1px solid rgba(190,59,46,.18); }
+
+/* Action buttons in DataTable */
+.lbr-action-btn { padding: .2rem .5rem !important; }

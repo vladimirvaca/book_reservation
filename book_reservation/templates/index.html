@@ -7,6 +7,8 @@
 
 {% block content %}
 
+{% include 'forms/reserve_form.html' %}
+
 <!-- ======================================================
      NAVBAR
      ====================================================== -->
@@ -28,8 +30,15 @@
                 <li class="nav-item">
                     <a class="nav-link" href="https://github.com/vladimirvaca" target="_blank">GitHub</a>
                 </li>
-                <li class="nav-item ml-lg-3 mt-2 mt-lg-0">
-                    <a href="{% url 'signin' %}" class="lbr-btn-signin-nav nav-link">
+                <li class="nav-item ml-lg-2 mt-2 mt-lg-0">
+                    <a href="#reserve" class="lbr-btn-signin-nav nav-link"
+                       onclick="$('#reserve_modal').modal('show'); return false;">
+                        <i class="fas fa-book-reader fa-xs mr-1"></i> Reserve
+                    </a>
+                </li>
+                <li class="nav-item ml-lg-2 mt-2 mt-lg-0">
+                    <a href="{% url 'signin' %}" class="lbr-btn-signin-nav nav-link"
+                       style="background:transparent;border:1px solid rgba(255,255,255,.15);">
                         Sign In &nbsp;<i class="fas fa-arrow-right fa-xs"></i>
                     </a>
                 </li>
@@ -52,11 +61,12 @@
             collection — all from one elegant interface.
         </p>
         <div class="lbr-hero-actions">
-            <a href="{% url 'signin' %}" class="lbr-btn-primary">
-                <i class="fas fa-sign-in-alt"></i> Get Started
+            <a href="#" class="lbr-btn-primary"
+               onclick="$('#reserve_modal').modal('show'); return false;">
+                <i class="fas fa-book-reader"></i> Reserve a Book
             </a>
-            <a href="#features" class="lbr-btn-ghost">
-                <i class="fas fa-chevron-down"></i> Learn More
+            <a href="{% url 'signin' %}" class="lbr-btn-ghost">
+                <i class="fas fa-sign-in-alt"></i> Admin Sign In
             </a>
         </div>
     </div>
@@ -117,6 +127,46 @@
     </div>
 </section>
 
+<hr class="lbr-section-divider">
+
+<!-- ======================================================
+     RESERVE CTA
+     ====================================================== -->
+<section id="reserve" class="lbr-reserve">
+    <div class="container">
+        <div class="lbr-reserve-inner">
+            <div class="lbr-reserve-badge">
+                <i class="fas fa-circle"></i> No account needed
+            </div>
+            <h2 class="lbr-reserve-title">
+                Reserve a book<br><em>in seconds.</em>
+            </h2>
+            <p class="lbr-reserve-sub">
+                No sign-up required. Just your ID and name —
+                pick a book from our collection and you're done.
+            </p>
+            <div class="lbr-reserve-steps">
+                <div class="lbr-reserve-step">
+                    <span class="lbr-reserve-step-num">1</span>
+                    Enter your DNI
+                </div>
+                <div class="lbr-reserve-step">
+                    <span class="lbr-reserve-step-num">2</span>
+                    Enter your name
+                </div>
+                <div class="lbr-reserve-step">
+                    <span class="lbr-reserve-step-num">3</span>
+                    Choose a book
+                </div>
+            </div>
+            <a href="#" class="lbr-btn-primary"
+               onclick="$('#reserve_modal').modal('show'); return false;">
+                <i class="fas fa-book-reader"></i> Reserve Now
+            </a>
+        </div>
+    </div>
+</section>
+
 <!-- ======================================================
      FOOTER
      ====================================================== -->
@@ -144,3 +194,7 @@
 </footer>
 
 {% endblock content %}
+
+{% block js %}
+<script src="{% static 'js/reserve.js' %}"></script>
+{% endblock js %}

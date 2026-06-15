@@ -21,4 +21,5 @@ urlpatterns = [
     re_path(r'^', include('login.urls')),
     re_path(r'^book/', include('book.urls')),
     re_path(r'^category/', include('category.urls')),
+    re_path(r'^reserve/', include('reserve.urls')),
 ]
