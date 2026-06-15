@@ -1,0 +1,22 @@
+[MASTER]
+load-plugins=pylint_django
+django-settings-module=book_reservation.settings
+jobs=1
+
+[MESSAGES CONTROL]
+# Keep CI focused on real errors; style/convention warnings are handled by
+# code review rather than blocking the pipeline.
+disable=
+    missing-module-docstring,
+    missing-function-docstring,
+    missing-class-docstring,
+    too-few-public-methods,
+    import-outside-toplevel,
+    broad-exception-caught,
+    fixme
+
+[FORMAT]
+max-line-length=120
+
+[DESIGN]
+max-args=8

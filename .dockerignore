@@ -1,0 +1,26 @@
+.git
+.venv
+.env
+.idea
+.travis.yml
+.github
+.claude
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Test / lint artefacts
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Local data — mounted as volumes at runtime
+book_reservation/db.sqlite3
+book_reservation/media_files/
+
+# Docs / CI config not needed in the image
+*.md
+LICENSE

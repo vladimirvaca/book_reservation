@@ -102,3 +102,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Django collected static (generated at build/deploy time)
+staticfiles/
+
+# Editor
+.idea/
