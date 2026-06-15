@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 '''
 Views for book app
 '''
-from __future__ import unicode_literals
-
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -11,8 +8,6 @@ from django.contrib.auth.decorators import login_required
 from category.models import Category
 from .models import Book
 from .forms import BookForm
-
-# Create your views here.
 
 
 @login_required(login_url='/signin')
@@ -57,7 +52,7 @@ def edit_book(request, book_id):
     '''
     View edit a book
     '''
-    book_edit = Book.objects.get(pk=id)
+    book_edit = Book.objects.get(pk=book_id)
     if request.method == 'POST':
         form = BookForm(request.POST, instance=book_edit)
         if form.is_valid():

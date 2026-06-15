@@ -1,8 +1,6 @@
 '''
 Forms model from book.
 '''
-
-from __future__ import unicode_literals
 from django import forms
 
 from category.models import Category
@@ -18,6 +16,6 @@ class BookForm(forms.ModelForm):
     category_book = forms.ModelChoiceField(queryset=Category.objects.all())
     resume = forms.CharField(required=True)
 
-    class Meta():
+    class Meta:
         model = Book
         fields = ['number_serie', 'name', 'category_book', 'resume']

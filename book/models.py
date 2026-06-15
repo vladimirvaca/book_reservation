@@ -1,13 +1,8 @@
-# -*- coding: utf-8 -*-
 '''
 Models for book app.
 '''
-from __future__ import unicode_literals
-
 from django.db import models
 from category.models import Category
-
-# Create your models here.
 
 
 class Book(models.Model):
@@ -16,8 +11,8 @@ class Book(models.Model):
     '''
     number_serie = models.CharField(max_length=10)
     name = models.CharField(max_length=100)
-    category_book = models.ForeignKey(Category)
+    category_book = models.ForeignKey(Category, on_delete=models.CASCADE)
     resume = models.CharField(max_length=100)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name

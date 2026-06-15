@@ -1,13 +1,13 @@
 '''
 Urls from book app
 '''
-from django.conf.urls import url
+from django.urls import re_path
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.book, name='book'),
-    url(r'^save/', views.save_book, name='book_save'),
-    url(r'^edit/(?P<book_id>\d+)', views.edit_book, name='book_edit'),
-    url(r'^get/', views.get_books, name='get_books'),
-    url(r'^delete/', views.delete_book, name='book_delete'),
+    re_path(r'^$', views.book, name='book'),
+    re_path(r'^save/', views.save_book, name='book_save'),
+    re_path(r'^edit/(?P<book_id>\d+)', views.edit_book, name='book_edit'),
+    re_path(r'^get/', views.get_books, name='get_books'),
+    re_path(r'^delete/', views.delete_book, name='book_delete'),
 ]

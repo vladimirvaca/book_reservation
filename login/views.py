@@ -1,23 +1,20 @@
-# -*- coding: utf-8 -*-
 '''
 All views from login app.
 '''
-from __future__ import unicode_literals
-
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
 
 from .forms import LoguinForm
 
-# Create your views here.
-
 
 def index(request):
     '''
     View for load index page
     '''
+    if request.user.is_authenticated:
+        return redirect('dashboard')
     return render(request, 'index.html')
 
 
@@ -25,6 +22,8 @@ def signin_user(request):
     '''
     View for validating user
     '''
+    if request.user.is_authenticated:
+        return redirect('dashboard')
     if request.method == 'POST':
         form = LoguinForm(request.POST)
         if form.is_valid():

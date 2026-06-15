@@ -1,11 +1,11 @@
 '''
 Urls for app login
 '''
-from django.conf.urls import url
+from django.urls import re_path
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.index, name='index'),
-    url(r'^dashboard/', views.dashboard, name='dashboard'),
-    url(r'^signin/', views.signin_user, name='signin')
+    re_path(r'^$', views.index, name='index'),
+    re_path(r'^dashboard/', views.dashboard, name='dashboard'),
+    re_path(r'^signin/', views.signin_user, name='signin'),
 ]

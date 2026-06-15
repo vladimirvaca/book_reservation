@@ -1,9 +1,6 @@
-# -*- coding: utf-8 -*-
 '''
 Configurations from book app
 '''
-from __future__ import unicode_literals
-
 from django.apps import AppConfig
 
 
