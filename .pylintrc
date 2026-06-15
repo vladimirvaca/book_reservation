@@ -2,6 +2,9 @@
 load-plugins=pylint_django
 django-settings-module=book_reservation.settings
 jobs=1
+# Django generates migration files with names that violate snake_case and
+# lines that exceed the max length — exclude them entirely.
+ignore-paths=^.*/migrations/.*$
 
 [MESSAGES CONTROL]
 # Keep CI focused on real errors; style/convention warnings are handled by

@@ -2,6 +2,7 @@
 Models for book app.
 '''
 from django.db import models
+
 from category.models import Category
 
 

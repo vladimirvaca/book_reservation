@@ -1,13 +1,12 @@
 '''
 Views for book app
 '''
-from django.shortcuts import render
-from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import render
 
-from category.models import Category
-from .models import Book
 from .forms import BookForm
+from .models import Book
 
 
 @login_required(login_url='/signin')
@@ -24,11 +23,16 @@ def get_books(request):
     View return all books
     '''
     if request.method == 'GET':
-        books_raw = list(Book.objects.raw(
-            "SELECT * FROM book_book"))
-        books = [{"id": r.id, "number_serie": r.number_serie,
-                  "name": r.name, "category": Category.objects.get(pk=r.category_book_id).category,
-                  "resume": r.resume} for r in books_raw]
+        books = [
+            {
+                "id": b.id,
+                "number_serie": b.number_serie,
+                "name": b.name,
+                "category": b.category_book.category,
+                "resume": b.resume,
+            }
+            for b in Book.objects.select_related('category_book').all()
+        ]
         return JsonResponse({"data": books}, safe=False)
     return None
 

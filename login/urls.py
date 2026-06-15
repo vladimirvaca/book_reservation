@@ -1,8 +1,9 @@
 '''
 Urls for app login
 '''
-from django.urls import re_path
 from django.contrib.auth.views import LogoutView
+from django.urls import re_path
+
 from . import views
 
 urlpatterns = [

@@ -1,7 +1,10 @@
 import datetime
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+
 from book.models import Book
+
 from .forms import ReservationForm
 from .models import Reservation
 

@@ -1,9 +1,9 @@
 '''
 Here are all the necessary views for the characteristics of Category to work.
 '''
-from django.shortcuts import render
-from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import render
 
 from .forms import CategoryForm
 from .models import Category
@@ -52,10 +52,9 @@ def get_categories(request):
     Get all categories
     '''
     if request.method == 'GET':
-        categories_raw = list(Category.objects.raw(
-            "SELECT * FROM category_category"))
-        categories = [{"id": r.id, "category": r.category,
-                       "description": r.description} for r in categories_raw]
+        categories = list(
+            Category.objects.values('id', 'category', 'description')
+        )
         return JsonResponse({"data": categories}, safe=False)
     return None
 
@@ -66,12 +65,11 @@ def get_categories_search(request):
     Search categories with a criteria
     '''
     if request.method == 'GET':
-        criteria = "'%" + request.GET['criteria'] + "%'"
-        categories_raw = list(Category.objects.raw(
-            "SELECT * FROM category_category " +
-            "WHERE category_category.category LIKE {0} LIMIT 5".format(criteria)))
-        categories = [{"id": r.id, "category": r.category,
-                       "description": r.description} for r in categories_raw]
+        criteria = request.GET.get('criteria', '')
+        categories = list(
+            Category.objects.filter(category__icontains=criteria)
+            .values('id', 'category', 'description')[:5]
+        )
         return JsonResponse(categories, safe=False)
     return None
 
