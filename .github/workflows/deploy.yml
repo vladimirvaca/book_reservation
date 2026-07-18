@@ -99,8 +99,15 @@ jobs:
               exit 1
             fi
             if ! docker info >/dev/null 2>&1; then
-              echo "::error::User $USER cannot talk to the Docker daemon. Run: sudo usermod -aG docker $USER and reconnect. See RELEASING.md."
-              exit 1
+              # Distinguish "not in docker group" (self-healable) from a
+              # broken/stopped daemon.
+              if sudo -n docker info >/dev/null 2>&1; then
+                echo "Adding $USER to the docker group (effective from the next SSH session)."
+                sudo -n usermod -aG docker "$USER"
+              else
+                echo "::error::Docker daemon is not running on the server. Check: sudo systemctl status docker. See RELEASING.md."
+                exit 1
+              fi
             fi
             sudo -n mkdir -p /opt/book_reservation/data
             sudo -n chown -R "$USER" /opt/book_reservation
