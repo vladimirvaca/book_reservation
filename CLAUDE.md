@@ -104,7 +104,7 @@ Each app has a `tests.py`; shared helpers in root-level `testutils.py` (`LoginRe
 Two workflows in `.github/workflows/`:
 
 - **ci.yml** — push/PR to master: pylint (errors only), isort, tests; on master push also builds/pushes the Docker image to GHCR (`:latest` + commit SHA).
-- **release.yml** — on `vX.Y.Z` tag: verifies tag matches `VERSION`, tests, pushes `ghcr.io/<repo>:vX.Y.Z` + `:latest`, creates a GitHub Release with a source tarball. The pipeline ends there — **no automated deployment**; released images are pulled and run manually on the target host (procedure in `RELEASING.md`).
+- **release.yml** — on `vX.Y.Z` tag: verifies tag matches `VERSION`, then lint (pylint errors-only + isort) and tests gate everything; pushes `ghcr.io/<repo>:vX.Y.Z` + `:latest` with OCI labels (version/revision/source, via docker/metadata-action — containers inherit them, used with Traefik), and creates a GitHub Release whose notes list the commits since the previous tag. The pipeline ends there — **no automated deployment**; released images are pulled and run manually on the target host (procedure in `RELEASING.md`).
 
 To cut a release: bump `VERSION`, commit, tag `vX.Y.Z`, push the tag.
 

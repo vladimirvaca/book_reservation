@@ -28,14 +28,20 @@ git push origin v1.1.0
 
 The `Release` workflow (`.github/workflows/release.yml`) then runs:
 
-1. **verify** — checks tag == `VERSION`, runs the full test suite.
-2. **docker** — builds and pushes `ghcr.io/<owner>/<repo>:v1.1.0` and `:latest`.
-3. **github-release** — creates a GitHub Release with auto-generated notes
-   and a source tarball artifact.
+1. **verify** — checks tag == `VERSION`, then runs pylint, isort, and the
+   full test suite. **Nothing is published unless all of them pass.**
+2. **docker** — builds and pushes `ghcr.io/<owner>/<repo>:v1.1.0` and
+   `:latest`. The image carries standard OCI labels
+   (`org.opencontainers.image.version`, `.revision`, `.source`,
+   `.created`, …) that containers inherit at runtime, so label-driven
+   tooling such as Traefik can identify what is running.
+3. **github-release** — creates a GitHub Release containing the list of
+   commits since the previous tag, the image reference, and a source
+   tarball artifact.
 
 That's the end of the pipeline: every release yields a GitHub Release plus a
-versioned, immutable Docker image on GHCR. Deployment is a separate, manual
-concern.
+versioned, immutable, labeled Docker image on GHCR. Deployment is a
+separate, manual concern.
 
 ## Deploying a released image
 
@@ -64,3 +70,27 @@ docker compose run --rm -T web python manage.py migrate --noinput
 docker compose up -d --force-recreate web
 curl http://127.0.0.1:8000/healthz   # should report the new version
 ```
+
+## Running behind Traefik
+
+The image ships with OCI identification labels baked in (version, git
+revision, source repo), and containers inherit them — inspect with
+`docker inspect <container> --format '{{json .Config.Labels}}'`.
+
+Traefik *routing* rules are deployment-specific, so they belong in the
+host's compose file rather than the image:
+
+```yaml
+services:
+  web:
+    image: "${IMAGE}"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.books.rule=Host(`books.example.com`)
+      - traefik.http.routers.books.entrypoints=websecure
+      - traefik.http.routers.books.tls.certresolver=letsencrypt
+      - traefik.http.services.books.loadbalancer.server.port=8000
+```
+
+With Traefik terminating TLS, set `DJANGO_CSRF_TRUSTED_ORIGINS`
+(e.g. `https://books.example.com`) in the app's environment.

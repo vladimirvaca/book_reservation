@@ -112,7 +112,7 @@ Three GitHub Actions workflows cover the full path from commit to production:
 | Workflow | Trigger | What it does |
 |---|---|---|
 | **CI** (`ci.yml`) | push / PR to `master` | `pylint --errors-only` + `isort --check` · `python manage.py test` · on master pushes, builds and pushes the Docker image to `ghcr.io` (`latest` + commit SHA) |
-| **Release** (`release.yml`) | `vX.Y.Z` tag | Verifies the tag matches the `VERSION` file, runs the test suite, pushes the versioned image to GHCR, and creates a GitHub Release with auto-generated notes and a source tarball |
+| **Release** (`release.yml`) | `vX.Y.Z` tag | Verifies the tag matches the `VERSION` file, gates on lint + full test suite, pushes the versioned image (with OCI labels) to GHCR, and creates a GitHub Release listing the commits contained in the version, plus a source tarball |
 
 Superseded CI runs on the same branch are cancelled automatically, and Docker builds use the Actions layer cache.
 

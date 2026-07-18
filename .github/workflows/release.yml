@@ -1,11 +1,15 @@
 # Release pipeline — fires when a version tag (v1.2.3) is pushed.
 #
-#   verify → docker → github-release
+#   verify (lint + tests) → docker → github-release
 #
-# 1. verify          — tag must match the VERSION file; full test suite runs.
-# 2. docker          — image pushed to GHCR tagged v1.2.3 + latest.
-# 3. github-release  — GitHub Release created with generated notes and a
-#                      source tarball artifact.
+# 1. verify          — tag must match the VERSION file; pylint, isort and
+#                      the full test suite must pass or nothing is published.
+# 2. docker          — image pushed to GHCR tagged v1.2.3 + latest, with
+#                      OCI labels (version, revision, source, …) baked in.
+#                      Containers inherit image labels, so tools like
+#                      Traefik can read them off the running container.
+# 3. github-release  — GitHub Release with a commit-level changelog since
+#                      the previous tag and a source tarball artifact.
 #
 # Deployment is not part of the pipeline: pull the published image on the
 # target host (see RELEASING.md).
@@ -20,7 +24,7 @@ permissions:
 
 jobs:
   verify:
-    name: Verify version & tests
+    name: Verify version, lint & tests
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -49,6 +53,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: pylint (errors only)
+        run: |
+          pylint --rcfile=.pylintrc --errors-only \
+            login/ reserve/ category/ book/
+
+      - name: isort (check imports are sorted)
+        run: isort --check-only --diff .
+
       - name: Run Django tests
         run: python manage.py test --verbosity=2
 
@@ -72,6 +84,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Generates the OCI labels (org.opencontainers.image.version /
+      # revision / source / created / …) stamped into the image.
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=v${{ needs.verify.outputs.version }}
+            type=raw,value=latest
+
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
@@ -79,9 +102,8 @@ jobs:
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: |
-            ghcr.io/${{ github.repository }}:v${{ needs.verify.outputs.version }}
-            ghcr.io/${{ github.repository }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   github-release:
     name: Create GitHub Release
@@ -91,6 +113,9 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history + tags, needed to diff against the previous release.
+          fetch-depth: 0
 
       - name: Build source artifact
         run: |
@@ -99,11 +124,28 @@ jobs:
             -o "book_reservation-${{ needs.verify.outputs.version }}.tar.gz" \
             "$GITHUB_REF_NAME"
 
-      - name: Create release with generated notes
+      - name: Generate changelog since previous tag
+        run: |
+          PREV_TAG="$(git describe --tags --abbrev=0 "$GITHUB_REF_NAME^" 2>/dev/null || true)"
+          {
+            echo "## Changes in $GITHUB_REF_NAME"
+            echo
+            if [ -n "$PREV_TAG" ]; then
+              git log --no-merges --pretty='- %s (%h)' "$PREV_TAG..$GITHUB_REF_NAME"
+              echo
+              echo "**Image:** \`ghcr.io/${{ github.repository }}:$GITHUB_REF_NAME\`"
+            else
+              echo "First release."
+              git log --no-merges --pretty='- %s (%h)' "$GITHUB_REF_NAME"
+            fi
+          } > changelog.md
+          cat changelog.md
+
+      - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$GITHUB_REF_NAME" \
             "book_reservation-${{ needs.verify.outputs.version }}.tar.gz" \
             --title "$GITHUB_REF_NAME" \
-            --generate-notes
+            --notes-file changelog.md
