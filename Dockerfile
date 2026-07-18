@@ -12,6 +12,10 @@ RUN pip install --no-cache-dir --upgrade pip \
 # ── Runtime stage ─────────────────────────────────────────────────────────────
 FROM python:3.13-slim
 
+# CI overrides/extends these via docker/metadata-action; this static one
+# covers local and manual builds.
+LABEL org.opencontainers.image.description="Simple application to rent books, using Django and Jquery."
+
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     DJANGO_SETTINGS_MODULE=book_reservation.settings \
