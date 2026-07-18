@@ -89,6 +89,8 @@ jobs:
               echo "HOST_PORT=$HOST_PORT"
             fi
           } > production.env
+          echo "Rendered .env (secret omitted):"
+          grep -v '^DJANGO_SECRET_KEY=' production.env | cat -A
 
       - name: Prepare server (check Docker, create app directory)
         run: |

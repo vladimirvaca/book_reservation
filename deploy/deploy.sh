@@ -52,6 +52,9 @@ echo "==> Starting new container"
 # changes; recreating guarantees the rendered .env is what actually runs.
 docker compose up -d --force-recreate web
 
+echo "==> Container environment sanity check"
+docker compose exec -T web printenv DJANGO_ALLOWED_HOSTS DJANGO_DEBUG || true
+
 # Host port to probe; must match the compose port mapping.
 HOST_PORT="$(sed -n 's/^HOST_PORT=//p' .env | tail -1)"
 HOST_PORT="${HOST_PORT:-8000}"
