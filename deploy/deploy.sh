@@ -38,6 +38,12 @@ fi
 echo "==> Pulling $IMAGE"
 docker compose pull web
 
+# The image runs as a non-root user; the bind-mounted data dir must be
+# writable by that uid or SQLite cannot create/open the database file.
+echo "==> Ensuring data directory is writable by the container user"
+APP_UID="$(docker run --rm "$IMAGE" id -u)"
+sudo -n chown -R "$APP_UID" "$APP_DIR/data"
+
 echo "==> Running database migrations"
 docker compose run --rm web python manage.py migrate --noinput
 
