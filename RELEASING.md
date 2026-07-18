@@ -1,4 +1,4 @@
-# Releasing & Deployment
+# Releasing
 
 ## Versioning
 
@@ -32,97 +32,35 @@ The `Release` workflow (`.github/workflows/release.yml`) then runs:
 2. **docker** — builds and pushes `ghcr.io/<owner>/<repo>:v1.1.0` and `:latest`.
 3. **github-release** — creates a GitHub Release with auto-generated notes
    and a source tarball artifact.
-4. **deploy** — SSHes into the Lightsail instance and ships the new image
-   (see below).
 
-To redeploy or roll back, run the **Deploy** workflow manually from the
-Actions tab and enter any previously released tag (e.g. `v1.0.0`).
+That's the end of the pipeline: every release yields a GitHub Release plus a
+versioned, immutable Docker image on GHCR. Deployment is a separate, manual
+concern.
 
-## One-time Lightsail setup
+## Deploying a released image
 
-On a fresh Ubuntu Lightsail instance:
-
-```bash
-# Install Docker (includes the compose plugin used by the deploy)
-curl -fsSL https://get.docker.com | sudo sh
-sudo usermod -aG docker $USER   # log out & back in afterwards
-```
-
-That's all — installing Docker is the only manual step. The deploy workflow
-creates `/opt/book_reservation` itself and renders the production `.env`
-from GitHub secrets/variables on every deploy; no files are created by hand
-on the instance.
-
-Open the app port (default 8000, or 80/443 if you front it with a reverse
-proxy) in the Lightsail firewall ("Networking" tab).
-
-### GitHub repository secrets
-
-| Secret | Value |
-|--------|-------|
-| `LIGHTSAIL_HOST` | Public IP / hostname of the instance |
-| `LIGHTSAIL_USER` | SSH user, e.g. `ubuntu` |
-| `LIGHTSAIL_SSH_KEY` | Contents of the private key (PEM) for that user |
-| `DJANGO_SECRET_KEY` | Production secret key — generate with `python -c "import secrets; print(secrets.token_urlsafe(64))"` |
-| `LIGHTSAIL_PORT` | *(optional)* SSH port if not 22 |
-
-### GitHub repository variables
-
-Settings → Secrets and variables → Actions → **Variables** (non-sensitive
-config; readable in logs, unlike secrets):
-
-| Variable | Value |
-|----------|-------|
-| `DJANGO_ALLOWED_HOSTS` | Public domain / IP, e.g. `books.example.com` (`127.0.0.1` and `localhost` are appended automatically for health checks) |
-| `DJANGO_CSRF_TRUSTED_ORIGINS` | *(optional)* Origins incl. scheme, e.g. `https://books.example.com` |
-| `HOST_PORT` | *(optional)* Host port compose publishes; defaults to 8000 |
-
-No registry credential is needed on the server: the workflow logs Docker in
-with the run's `GITHUB_TOKEN` (read-only `packages` scope).
-
-Recommended: create a **production** environment in repo Settings →
-Environments; the deploy job targets it, so you get a deployment history and
-can add required reviewers as a manual approval gate.
-
-## What a deploy does on the server
-
-**The repo is never cloned on the instance.** The server needs no git, no
-Python, and no GitHub credentials — only Docker. The application code ships
-inside the image pulled from GHCR; `docker-compose.yml` and `.env` are
-copied over by the workflow on every deploy, as is `deploy.sh`. The GHCR login
-used to pull images is a short-lived token passed in per deploy, not stored.
-
-The server runs the app via Docker Compose. Layout on the instance:
-
-```
-/opt/book_reservation/
-├── docker-compose.yml   # copied from deploy/ by the workflow on every deploy
-├── .env                 # rendered from GitHub secrets/vars on every deploy;
-│                        # deploy.sh then pins IMAGE=<released tag> in it
-└── data/                # SQLite database + media uploads (compose volume)
-```
-
-The workflow first renders `.env` (from `DJANGO_SECRET_KEY`,
-`DJANGO_ALLOWED_HOSTS`, …) and copies it to the server together with
-`docker-compose.yml` and `deploy.sh`. Then it executes `deploy.sh` on the
-server, which:
-
-1. Pins `IMAGE=ghcr.io/<owner>/<repo>:vX.Y.Z` in `/opt/book_reservation/.env`
-   so compose always resolves to the exact released version.
-2. `docker compose pull web` — fetches the new image from GHCR.
-3. `docker compose run --rm web python manage.py migrate --noinput`.
-4. `docker compose up -d web` — recreates the container on the new image.
-5. Polls `http://127.0.0.1:<HOST_PORT>/healthz` until it responds **and
-   reports the deployed version** — the deploy fails (with container logs in
-   the Actions output) if it doesn't come up within ~60 s.
-6. Prunes dangling images from previous releases.
-
-Because the version is pinned in `.env`, manual operations on the server are
-safe and ordinary compose commands:
+Pull the versioned image on any Docker host and run it (see the README's
+"Docker deployment" section for the full run/migrate commands and
+environment variables):
 
 ```bash
-cd /opt/book_reservation
-docker compose logs -f web      # tail application logs
-docker compose restart web      # restart current version
-docker compose up -d web        # recreate (still the pinned version)
+docker pull ghcr.io/<owner>/<repo>:v1.1.0
+```
+
+> **GHCR visibility:** images are private by default. Either make the
+> package public (GitHub → Packages → package settings → Change visibility)
+> or log the host in with a personal access token that has `read:packages`:
+> `echo $PAT | docker login ghcr.io -u <username> --password-stdin`
+
+If the host runs the app via Docker Compose with the image tag kept in an
+`.env` file (`IMAGE=ghcr.io/<owner>/<repo>:v1.1.0`), updating to a new
+release is:
+
+```bash
+cd /path/to/app
+sed -i 's|^IMAGE=.*|IMAGE=ghcr.io/<owner>/<repo>:v1.1.0|' .env
+docker compose pull web
+docker compose run --rm -T web python manage.py migrate --noinput
+docker compose up -d --force-recreate web
+curl http://127.0.0.1:8000/healthz   # should report the new version
 ```

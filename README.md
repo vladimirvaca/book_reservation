@@ -25,7 +25,7 @@ A Django web application for library management. Patrons can reserve books witho
 | Database | SQLite (WAL mode) |
 | Python | 3.13 |
 | Frontend | Bootstrap 4, jQuery 3.7.1, DataTables 1.10.19, FontAwesome 5 |
-| Deployment | Docker Compose on AWS Lightsail, shipped by GitHub Actions |
+| Distribution | Versioned Docker images published to GHCR by GitHub Actions |
 
 ## Local development
 
@@ -112,23 +112,19 @@ Three GitHub Actions workflows cover the full path from commit to production:
 | Workflow | Trigger | What it does |
 |---|---|---|
 | **CI** (`ci.yml`) | push / PR to `master` | `pylint --errors-only` + `isort --check` · `python manage.py test` · on master pushes, builds and pushes the Docker image to `ghcr.io` (`latest` + commit SHA) |
-| **Release** (`release.yml`) | `vX.Y.Z` tag | Verifies the tag matches the `VERSION` file, runs the test suite, pushes the versioned image to GHCR, creates a GitHub Release with auto-generated notes and a source tarball, then triggers the deploy |
-| **Deploy** (`deploy.yml`) | chained from Release, or manual | SSHes into the Lightsail instance and updates it via Docker Compose; run it manually from the Actions tab to redeploy or roll back any released tag |
+| **Release** (`release.yml`) | `vX.Y.Z` tag | Verifies the tag matches the `VERSION` file, runs the test suite, pushes the versioned image to GHCR, and creates a GitHub Release with auto-generated notes and a source tarball |
 
 Superseded CI runs on the same branch are cancelled automatically, and Docker builds use the Actions layer cache.
 
-### Releases & automatic deployment
+### Releases
 
-The `VERSION` file is the single source of truth; the running version is exposed at `GET /healthz`, which the deploy polls to confirm the new release is actually live before reporting success. On the server, `deploy.sh` pins the released tag in `/opt/book_reservation/.env`, so Docker Compose always resolves to the exact deployed version — including on manual `docker compose up -d`.
-
-The Lightsail instance is fully code-free: the repo is never cloned there, and no git, Python, or GitHub credentials are installed on it. It only runs Docker — the app code arrives inside the image, and the compose file and `.env` are pushed by the workflow on each deploy. All configuration lives in GitHub secrets/variables. See [RELEASING.md](RELEASING.md) for the release/rollback procedure and one-time server setup.
+The `VERSION` file is the single source of truth, and the running app exposes its version at `GET /healthz`. Every `vX.Y.Z` tag produces a GitHub Release plus an immutable `ghcr.io/<owner>/<repo>:vX.Y.Z` image; deploying that image to a host is a manual step, documented in [RELEASING.md](RELEASING.md).
 
 ## Project structure
 
 ```
 book_reservation/
-├── .github/workflows/  # ci.yml, release.yml, deploy.yml
-├── deploy/             # docker-compose.yml + deploy.sh for the Lightsail host
+├── .github/workflows/  # ci.yml, release.yml
 ├── VERSION             # Current release version (single source of truth)
 ├── RELEASING.md        # Release & deployment guide
 ├── book/               # Book CRUD (models, views, forms, URLs)

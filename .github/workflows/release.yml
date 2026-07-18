@@ -1,12 +1,14 @@
 # Release pipeline — fires when a version tag (v1.2.3) is pushed.
 #
-#   verify → docker → github-release → deploy
+#   verify → docker → github-release
 #
 # 1. verify          — tag must match the VERSION file; full test suite runs.
 # 2. docker          — image pushed to GHCR tagged v1.2.3 + latest.
 # 3. github-release  — GitHub Release created with generated notes and a
 #                      source tarball artifact.
-# 4. deploy          — reusable deploy workflow ships the image to Lightsail.
+#
+# Deployment is not part of the pipeline: pull the published image on the
+# target host (see RELEASING.md).
 name: Release
 
 on:
@@ -105,17 +107,3 @@ jobs:
             "book_reservation-${{ needs.verify.outputs.version }}.tar.gz" \
             --title "$GITHUB_REF_NAME" \
             --generate-notes
-
-  # Releases created with GITHUB_TOKEN do not emit a `release` event, so the
-  # deploy is chained here instead of triggering on `release: published`.
-  deploy:
-    name: Deploy
-    needs: [verify, github-release]
-    # The called workflow may not request more than the caller grants.
-    permissions:
-      contents: read
-      packages: read
-    uses: ./.github/workflows/deploy.yml
-    with:
-      version: v${{ needs.verify.outputs.version }}
-    secrets: inherit

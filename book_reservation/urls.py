@@ -21,8 +21,8 @@ from django.urls import include, re_path
 
 def healthz(_request):
     """
-    Anonymous health probe used by the Docker HEALTHCHECK and the deploy
-    pipeline to verify the expected version is live.
+    Anonymous health probe used by the Docker HEALTHCHECK and for
+    verifying the expected version is live after a rollout.
     """
     return JsonResponse({'status': 'ok', 'version': settings.APP_VERSION})
 

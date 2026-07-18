@@ -24,4 +24,3 @@ book_reservation/media_files/
 # Docs / CI config not needed in the image
 *.md
 LICENSE
-deploy/

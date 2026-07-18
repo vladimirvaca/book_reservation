@@ -65,7 +65,7 @@ urlpatterns = [
 ]
 ```
 
-The root URLconf (`book_reservation/urls.py`) also defines `GET /healthz` — an anonymous probe returning `{"status": "ok", "version": <APP_VERSION>}`, used by the Docker HEALTHCHECK and the deploy pipeline.
+The root URLconf (`book_reservation/urls.py`) also defines `GET /healthz` — an anonymous probe returning `{"status": "ok", "version": <APP_VERSION>}`, used by the Docker HEALTHCHECK and for verifying a rollout landed.
 
 ### Models
 
@@ -101,12 +101,11 @@ Each app has a `tests.py`; shared helpers in root-level `testutils.py` (`LoginRe
 
 ## CI/CD & releases
 
-Three workflows in `.github/workflows/`:
+Two workflows in `.github/workflows/`:
 
 - **ci.yml** — push/PR to master: pylint (errors only), isort, tests; on master push also builds/pushes the Docker image to GHCR (`:latest` + commit SHA).
-- **release.yml** — on `vX.Y.Z` tag: verifies tag matches `VERSION`, tests, pushes `ghcr.io/<repo>:vX.Y.Z`, creates a GitHub Release with a source tarball, then chains into deploy.
-- **deploy.yml** — reusable + `workflow_dispatch` (redeploy/rollback any tag): renders the production `.env` from GitHub secrets/vars (`DJANGO_SECRET_KEY` secret; `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `HOST_PORT` vars), copies it, `deploy/docker-compose.yml`, and `deploy/deploy.sh` to `/opt/book_reservation/` on the AWS Lightsail host, then executes `deploy.sh` which pins `IMAGE=<tag>` in that `.env` and runs `docker compose pull` → `migrate` → `up -d`, then polls `/healthz` until it reports the deployed version. No config is hand-maintained on the server.
+- **release.yml** — on `vX.Y.Z` tag: verifies tag matches `VERSION`, tests, pushes `ghcr.io/<repo>:vX.Y.Z` + `:latest`, creates a GitHub Release with a source tarball. The pipeline ends there — **no automated deployment**; released images are pulled and run manually on the target host (procedure in `RELEASING.md`).
 
-Release procedure, required secrets (`LIGHTSAIL_*`), and one-time server setup are documented in `RELEASING.md`. To cut a release: bump `VERSION`, commit, tag `vX.Y.Z`, push the tag.
+To cut a release: bump `VERSION`, commit, tag `vX.Y.Z`, push the tag.
 
 The Docker image stores SQLite + media under a single `/data` volume (single-file mounts would break WAL sidecar files).
