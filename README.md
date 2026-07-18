@@ -119,7 +119,9 @@ Superseded CI runs on the same branch are cancelled automatically, and Docker bu
 
 ### Releases & automatic deployment
 
-The `VERSION` file is the single source of truth; the running version is exposed at `GET /healthz`, which the deploy polls to confirm the new release is actually live before reporting success. On the server, `deploy.sh` pins the released tag in `/opt/book_reservation/.env`, so Docker Compose always resolves to the exact deployed version — including on manual `docker compose up -d`. See [RELEASING.md](RELEASING.md) for the release/rollback procedure and one-time server setup.
+The `VERSION` file is the single source of truth; the running version is exposed at `GET /healthz`, which the deploy polls to confirm the new release is actually live before reporting success. On the server, `deploy.sh` pins the released tag in `/opt/book_reservation/.env`, so Docker Compose always resolves to the exact deployed version — including on manual `docker compose up -d`.
+
+The Lightsail instance is fully code-free: the repo is never cloned there, and no git, Python, or GitHub credentials are installed on it. It only runs Docker — the app code arrives inside the image, and the compose file and `.env` are pushed by the workflow on each deploy. All configuration lives in GitHub secrets/variables. See [RELEASING.md](RELEASING.md) for the release/rollback procedure and one-time server setup.
 
 ## Project structure
 
