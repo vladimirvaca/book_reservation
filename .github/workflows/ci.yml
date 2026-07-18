@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [master]
 
+# Cancel superseded runs on the same branch/PR to save Actions minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # ── 1. Lint ─────────────────────────────────────────────────────────────────
   lint:

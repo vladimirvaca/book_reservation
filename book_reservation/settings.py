@@ -4,6 +4,10 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 
+# Single source of truth for the release version; the release pipeline
+# checks that git tags match this file.
+APP_VERSION = (BASE_DIR.parent / 'VERSION').read_text(encoding='utf-8').strip()
+
 # ── Security ──────────────────────────────────────────────────────────────────
 # Override DJANGO_SECRET_KEY in production via environment variable.
 SECRET_KEY = os.environ.get(
@@ -16,6 +20,14 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = os.environ.get(
     'DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1'
 ).split(',')
+
+# Required when the site is served under a real domain (with or without TLS)
+# so that POSTs pass Django's Origin check, e.g. "https://books.example.com".
+CSRF_TRUSTED_ORIGINS = [
+    origin for origin in
+    os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',')
+    if origin
+]
 
 # ── Application ───────────────────────────────────────────────────────────────
 INSTALLED_APPS = [
@@ -35,6 +47,9 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    # Below WhiteNoise so static files (already pre-compressed) skip it;
+    # compresses dynamic HTML/JSON responses.
+    'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -69,13 +84,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # Overridable so Docker can keep the database on a mounted volume.
+        'NAME': Path(os.environ.get('DJANGO_DB_PATH', BASE_DIR / 'db.sqlite3')),
         # Reuse connections across requests; reduces connection overhead.
         'CONN_MAX_AGE': 60,
         'OPTIONS': {
             # Wait up to 20 s before raising "database is locked" under
             # concurrent writes from multiple gunicorn workers.
             'timeout': 20,
+            # WAL lets readers proceed while a write is in progress —
+            # the main SQLite bottleneck with multiple gunicorn workers.
+            # synchronous=NORMAL is safe with WAL and skips an fsync per
+            # transaction.
+            'init_command': (
+                'PRAGMA journal_mode=WAL;'
+                'PRAGMA synchronous=NORMAL;'
+                'PRAGMA cache_size=-8000;'
+            ),
+            # Take the write lock at transaction start instead of upgrading
+            # mid-transaction, avoiding spurious "database is locked" errors.
+            'transaction_mode': 'IMMEDIATE',
         },
     }
 }
@@ -112,7 +140,8 @@ if 'test' in sys.argv:
     )
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media_files'
+# Overridable so Docker can keep uploads on a mounted volume.
+MEDIA_ROOT = Path(os.environ.get('DJANGO_MEDIA_ROOT', BASE_DIR / 'media_files'))
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 # Only emit warnings and above to keep log volume low on a shared instance.

@@ -3,6 +3,7 @@ Tests for login app: authentication flow, admin management, and dashboard.
 '''
 import datetime
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -12,6 +13,19 @@ from category.models import Category
 from reserve.models import Reservation
 
 PASSWORD = 'Str0ng-Pass-2026'
+
+
+class HealthzViewTests(TestCase):
+    '''
+    Behaviour of the anonymous health probe used by the deploy pipeline.
+    '''
+
+    def test_healthz_returns_ok_and_version(self):
+        response = self.client.get(reverse('healthz'))
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload['status'], 'ok')
+        self.assertEqual(payload['version'], settings.APP_VERSION)
 
 
 class IndexViewTests(TestCase):

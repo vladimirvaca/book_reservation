@@ -1,0 +1,73 @@
+# Deploys a released image to the AWS Lightsail instance over SSH.
+#
+# Called automatically by release.yml after each release, or run manually
+# from the Actions tab (workflow_dispatch) to redeploy / roll back any
+# previously published version.
+#
+# Required repository secrets:
+#   LIGHTSAIL_HOST     — public IP or hostname of the instance
+#   LIGHTSAIL_USER     — SSH user (e.g. ubuntu)
+#   LIGHTSAIL_SSH_KEY  — private key (PEM) authorized on the instance
+# Optional:
+#   LIGHTSAIL_PORT     — SSH port, defaults to 22
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "Image tag to deploy (e.g. v1.2.3)"
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Image tag to deploy (e.g. v1.2.3)"
+        required: true
+        type: string
+
+# Never run two deploys against the server at once; queue instead.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy ${{ inputs.version }} to Lightsail
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      packages: read
+    env:
+      SSH_HOST: ${{ secrets.LIGHTSAIL_HOST }}
+      SSH_USER: ${{ secrets.LIGHTSAIL_USER }}
+      SSH_PORT: ${{ secrets.LIGHTSAIL_PORT || '22' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        env:
+          SSH_KEY: ${{ secrets.LIGHTSAIL_SSH_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
+      - name: Copy compose file to server
+        run: |
+          scp -i ~/.ssh/id_deploy -P "$SSH_PORT" \
+            deploy/docker-compose.yml \
+            "$SSH_USER@$SSH_HOST:/opt/book_reservation/docker-compose.yml"
+
+      - name: Run deploy script on server
+        env:
+          IMAGE: ghcr.io/${{ github.repository }}:${{ inputs.version }}
+          APP_VERSION: ${{ inputs.version }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ssh -i ~/.ssh/id_deploy -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+            "IMAGE='$IMAGE' APP_VERSION='$APP_VERSION' GHCR_USER='$GHCR_USER' GHCR_TOKEN='$GHCR_TOKEN' bash -s" \
+            < deploy/deploy.sh

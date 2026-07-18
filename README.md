@@ -66,13 +66,12 @@ docker run -d \
   -p 8000:8000 \
   -e DJANGO_SECRET_KEY='your-production-secret-key' \
   -e DJANGO_DEBUG='False' \
-  -e DJANGO_ALLOWED_HOSTS='yourdomain.com,www.yourdomain.com' \
-  -v /host/data/db.sqlite3:/app/book_reservation/db.sqlite3 \
-  -v /host/data/media:/app/book_reservation/media_files \
+  -e DJANGO_ALLOWED_HOSTS='yourdomain.com,127.0.0.1' \
+  -v /host/data:/data \
   book-reservation
 ```
 
-The two bind-mounts persist the SQLite database and any uploaded media files across container restarts and redeployments.
+The `/data` bind-mount persists the SQLite database (including its WAL sidecar files) and uploaded media across container restarts and redeployments. Keep `127.0.0.1` in `DJANGO_ALLOWED_HOSTS` so the built-in container health check (`/healthz`) passes.
 
 ### First run — create the database and admin user
 
@@ -80,14 +79,14 @@ The two bind-mounts persist the SQLite database and any uploaded media files acr
 # Apply migrations (only needed once, or after model changes)
 docker run --rm \
   -e DJANGO_SECRET_KEY='your-production-secret-key' \
-  -v /host/data/db.sqlite3:/app/book_reservation/db.sqlite3 \
+  -v /host/data:/data \
   book-reservation \
   python manage.py migrate
 
 # Create the admin account
 docker run --rm -it \
   -e DJANGO_SECRET_KEY='your-production-secret-key' \
-  -v /host/data/db.sqlite3:/app/book_reservation/db.sqlite3 \
+  -v /host/data:/data \
   book-reservation \
   python manage.py createsuperuser
 ```
@@ -99,6 +98,9 @@ docker run --rm -it \
 | `DJANGO_SECRET_KEY` | dev key (insecure) | **Required in production.** Django secret key. |
 | `DJANGO_DEBUG` | `True` | Set to `False` in production. |
 | `DJANGO_ALLOWED_HOSTS` | `localhost,127.0.0.1` | Comma-separated list of allowed hostnames. |
+| `DJANGO_CSRF_TRUSTED_ORIGINS` | *(empty)* | Comma-separated origins incl. scheme, e.g. `https://books.example.com`. Needed when serving under a domain. |
+| `DJANGO_DB_PATH` | `book_reservation/db.sqlite3` | SQLite file location (the Docker image sets `/data/db.sqlite3`). |
+| `DJANGO_MEDIA_ROOT` | `book_reservation/media_files` | Media upload directory (the Docker image sets `/data/media`). |
 
 > **Note:** A reverse proxy (nginx, Caddy, Traefik) in front of the container is recommended for TLS termination and domain routing when sharing a Lightsail instance with other apps.
 
@@ -113,6 +115,10 @@ GitHub Actions runs three jobs on every push and pull request to `master`:
 | **Docker** | Builds the image and pushes to `ghcr.io` (master pushes only, after lint + test pass) |
 
 The Docker job uses GitHub Actions layer cache to speed up rebuilds and tags each image with both `latest` and the commit SHA for traceability.
+
+### Releases & automatic deployment
+
+Pushing a `vX.Y.Z` tag triggers the **Release** pipeline: version check against the `VERSION` file, full test run, versioned image push to GHCR, GitHub Release with a source artifact, and an automatic SSH deploy to the AWS Lightsail instance, where Docker Compose pulls and runs the newly released image. The running version is exposed at `GET /healthz`. See [RELEASING.md](RELEASING.md) for the full release/rollback procedure and one-time server setup.
 
 ## Project structure
 

@@ -1,0 +1,121 @@
+# Release pipeline — fires when a version tag (v1.2.3) is pushed.
+#
+#   verify → docker → github-release → deploy
+#
+# 1. verify          — tag must match the VERSION file; full test suite runs.
+# 2. docker          — image pushed to GHCR tagged v1.2.3 + latest.
+# 3. github-release  — GitHub Release created with generated notes and a
+#                      source tarball artifact.
+# 4. deploy          — reusable deploy workflow ships the image to Lightsail.
+name: Release
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify version & tests
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    env:
+      DJANGO_DEBUG: "True"
+      DJANGO_SECRET_KEY: "ci-only-not-a-real-secret"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check tag matches VERSION file
+        id: version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          FILE_VERSION="$(tr -d '[:space:]' < VERSION)"
+          if [ "$TAG_VERSION" != "$FILE_VERSION" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match VERSION file ($FILE_VERSION). Bump VERSION before tagging."
+            exit 1
+          fi
+          echo "version=$TAG_VERSION" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run Django tests
+        run: python manage.py test --verbosity=2
+
+  docker:
+    name: Build & push image
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            ghcr.io/${{ github.repository }}:v${{ needs.verify.outputs.version }}
+            ghcr.io/${{ github.repository }}:latest
+
+  github-release:
+    name: Create GitHub Release
+    needs: [verify, docker]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build source artifact
+        run: |
+          git archive --format=tar.gz \
+            --prefix="book_reservation-${{ needs.verify.outputs.version }}/" \
+            -o "book_reservation-${{ needs.verify.outputs.version }}.tar.gz" \
+            "$GITHUB_REF_NAME"
+
+      - name: Create release with generated notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "book_reservation-${{ needs.verify.outputs.version }}.tar.gz" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes
+
+  # Releases created with GITHUB_TOKEN do not emit a `release` event, so the
+  # deploy is chained here instead of triggering on `release: published`.
+  deploy:
+    name: Deploy
+    needs: [verify, github-release]
+    # The called workflow may not request more than the caller grants.
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/deploy.yml
+    with:
+      version: v${{ needs.verify.outputs.version }}
+    secrets: inherit
