@@ -46,14 +46,12 @@ On a fresh Ubuntu Lightsail instance:
 # Install Docker (includes the compose plugin used by the deploy)
 curl -fsSL https://get.docker.com | sudo sh
 sudo usermod -aG docker $USER   # log out & back in afterwards
-
-# App directory (the deploy workflow copies docker-compose.yml and .env here)
-sudo mkdir -p /opt/book_reservation/data
-sudo chown -R $USER /opt/book_reservation
 ```
 
-That's all — no config files are created by hand on the instance. The
-production `.env` is rendered from GitHub secrets/variables on every deploy.
+That's all — installing Docker is the only manual step. The deploy workflow
+creates `/opt/book_reservation` itself and renders the production `.env`
+from GitHub secrets/variables on every deploy; no files are created by hand
+on the instance.
 
 Open the app port (default 8000, or 80/443 if you front it with a reverse
 proxy) in the Lightsail firewall ("Networking" tab).

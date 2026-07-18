@@ -90,6 +90,22 @@ jobs:
             fi
           } > production.env
 
+      - name: Prepare server (check Docker, create app directory)
+        run: |
+          ssh -i ~/.ssh/id_deploy -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" '
+            set -e
+            if ! command -v docker >/dev/null 2>&1; then
+              echo "::error::Docker is not installed on the server. Run: curl -fsSL https://get.docker.com | sudo sh && sudo usermod -aG docker $USER (then reconnect). See RELEASING.md."
+              exit 1
+            fi
+            if ! docker info >/dev/null 2>&1; then
+              echo "::error::User $USER cannot talk to the Docker daemon. Run: sudo usermod -aG docker $USER and reconnect. See RELEASING.md."
+              exit 1
+            fi
+            sudo -n mkdir -p /opt/book_reservation/data
+            sudo -n chown -R "$USER" /opt/book_reservation
+          '
+
       - name: Copy compose file and .env to server
         run: |
           scp -i ~/.ssh/id_deploy -P "$SSH_PORT" \
