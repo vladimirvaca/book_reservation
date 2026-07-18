@@ -2,7 +2,7 @@
 
 ## Project overview
 
-Django web application for library management. A librarian can manage book categories and books, then reserve them by time. Uses Django's auth system for access control — all views except login/index require authentication.
+Django web application for library management. Patrons reserve books from the public landing page (no account needed); librarians manage categories, books, reservations, and admin users from a login-protected dashboard. Uses Django's auth system for access control — all views except the landing page, sign-in, and the public reservation endpoints require authentication.
 
 ## Running the project
 
@@ -18,24 +18,26 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+Run the test suite with `python manage.py test` (80 tests across all apps). CI lints with `pylint --rcfile=.pylintrc --errors-only` and `isort --check-only`.
+
 ## Architecture
 
 **Framework:** Django 5.2 LTS  
-**Database:** SQLite (`book_reservation/db.sqlite3`)  
-**Python:** 3.10+  
+**Database:** SQLite (WAL mode, path overridable via `DJANGO_DB_PATH`)  
+**Python:** 3.13 (CI); 3.10+ works  
 
 ### Apps
 
 | App | Purpose |
 |-----|---------|
-| `login` | Auth views (index, signin, dashboard) |
+| `login` | Auth views (index, signin, dashboard) + admin-user CRUD |
 | `book` | Book CRUD (JSON API) |
-| `category` | Category CRUD (JSON API) |
-| `reserve` | Reservation logic (not yet implemented) |
+| `category` | Category CRUD + live search (JSON API) |
+| `reserve` | Public reservation form + dashboard reservation management (status lifecycle: reserved → checked_out → returned; overdue derived at query time) |
 
 ### Request/response pattern
 
-Views are **function-based** with `@login_required(login_url='/signin')`. Data mutation views return `JsonResponse` for AJAX consumption; page views return `render()`.
+Views are **function-based**; protected ones use `@login_required(login_url='/signin')` (public reservation endpoints have no decorator). Data mutation views return `JsonResponse` for AJAX consumption; page views return `render()`.
 
 ```python
 @login_required(login_url='/signin')
@@ -49,6 +51,8 @@ def save_book(request):
     return None
 ```
 
+All list/search endpoints use the ORM (`values()`, `select_related`) — no raw SQL anywhere.
+
 ### URL patterns
 
 All URL configs use `re_path()` with regex patterns (Django 5.x style):
@@ -61,20 +65,11 @@ urlpatterns = [
 ]
 ```
 
+The root URLconf (`book_reservation/urls.py`) also defines `GET /healthz` — an anonymous probe returning `{"status": "ok", "version": <APP_VERSION>}`, used by the Docker HEALTHCHECK and the deploy pipeline.
+
 ### Models
 
-`Book` belongs to `Category` via ForeignKey with `on_delete=models.CASCADE`. Both use `__str__` (Python 3).
-
-```python
-class Book(models.Model):
-    number_serie = models.CharField(max_length=10)
-    name = models.CharField(max_length=100)
-    category_book = models.ForeignKey(Category, on_delete=models.CASCADE)
-    resume = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
-```
+`Book` belongs to `Category` (FK, CASCADE). `Reservation` belongs to `Book` (FK, CASCADE) with a `status` choice field (`reserved` / `checked_out` / `returned`). All models use `__str__`.
 
 ### Forms
 
@@ -91,18 +86,27 @@ class BookForm(forms.ModelForm):
 ### Templates
 
 `book_reservation/templates/` is the template root (configured in `settings.py`).  
-`base_templates/base_template.html` is the base layout with Bootstrap 4, jQuery 3, and DataTables. All pages extend it via `{% extends %}`.
+`base_templates/base_template.html` is the base layout with Bootstrap 4, jQuery 3, and DataTables. All pages extend it via `{% extends %}`. Reusable modal partials live in `templates/forms/`.
 
 ### Settings
 
-`settings.py` lives in `book_reservation/` (same package as `urls.py`, `wsgi.py`).  
-`BASE_DIR` uses `pathlib.Path` and points to the `book_reservation/` config directory.  
-`STATICFILES_DIRS` points to `book_reservation/static/`.  
-`MEDIA_ROOT` points to `book_reservation/media_files/`.
+`settings.py` lives in `book_reservation/` (same package as `urls.py`, `wsgi.py`); `BASE_DIR` points there.  
+`APP_VERSION` is read from the root `VERSION` file — the single source of truth for releases.  
+Env-configurable: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `DJANGO_DB_PATH`, `DJANGO_MEDIA_ROOT`.  
+SQLite runs with `journal_mode=WAL`, `synchronous=NORMAL`, and `transaction_mode=IMMEDIATE`. Static files: WhiteNoise (compressed + manifest; plain storage under `manage.py test`). `GZipMiddleware` compresses dynamic responses.
 
-## Known issues / tech debt
+### Tests
 
-- `edit_book` and `edit_category` views use `id` (builtin) instead of `book_id` / `category_id` parameter — bug inherited from original code.
-- `get_categories_search` builds SQL with string formatting — SQL injection risk. Should be migrated to ORM.
-- Raw SQL in `get_books` and `get_categories` can be replaced with `Book.objects.all()` / `Category.objects.all()`.
-- `reserve` app has no models or views implemented yet.
+Each app has a `tests.py`; shared helpers in root-level `testutils.py` (`LoginRequiredTestsMixin` verifies protected URLs redirect anonymous users to `/signin`).
+
+## CI/CD & releases
+
+Three workflows in `.github/workflows/`:
+
+- **ci.yml** — push/PR to master: pylint (errors only), isort, tests; on master push also builds/pushes the Docker image to GHCR (`:latest` + commit SHA).
+- **release.yml** — on `vX.Y.Z` tag: verifies tag matches `VERSION`, tests, pushes `ghcr.io/<repo>:vX.Y.Z`, creates a GitHub Release with a source tarball, then chains into deploy.
+- **deploy.yml** — reusable + `workflow_dispatch` (redeploy/rollback any tag): SSHes to the AWS Lightsail host, copies `deploy/docker-compose.yml` to `/opt/book_reservation/`, streams `deploy/deploy.sh` which pins `IMAGE=<tag>` in the server `.env` and runs `docker compose pull` → `migrate` → `up -d`, then polls `/healthz` until it reports the deployed version.
+
+Release procedure, required secrets (`LIGHTSAIL_*`), and one-time server setup are documented in `RELEASING.md`. To cut a release: bump `VERSION`, commit, tag `vX.Y.Z`, push the tag.
+
+The Docker image stores SQLite + media under a single `/data` volume (single-file mounts would break WAL sidecar files).

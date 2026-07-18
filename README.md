@@ -22,9 +22,10 @@ A Django web application for library management. Patrons can reserve books witho
 | Backend | Django 5.2 LTS |
 | WSGI server | Gunicorn 23 |
 | Static files | WhiteNoise 6 (compressed + fingerprinted) |
-| Database | SQLite |
+| Database | SQLite (WAL mode) |
 | Python | 3.13 |
 | Frontend | Bootstrap 4, jQuery 3.7.1, DataTables 1.10.19, FontAwesome 5 |
+| Deployment | Docker Compose on AWS Lightsail, shipped by GitHub Actions |
 
 ## Local development
 
@@ -106,27 +107,31 @@ docker run --rm -it \
 
 ## CI / CD
 
-GitHub Actions runs three jobs on every push and pull request to `master`:
+Three GitHub Actions workflows cover the full path from commit to production:
 
-| Job | What it does |
-|---|---|
-| **Lint** | `pylint --errors-only` across all apps · `isort --check` for import ordering |
-| **Test** | `python manage.py test` |
-| **Docker** | Builds the image and pushes to `ghcr.io` (master pushes only, after lint + test pass) |
+| Workflow | Trigger | What it does |
+|---|---|---|
+| **CI** (`ci.yml`) | push / PR to `master` | `pylint --errors-only` + `isort --check` · `python manage.py test` · on master pushes, builds and pushes the Docker image to `ghcr.io` (`latest` + commit SHA) |
+| **Release** (`release.yml`) | `vX.Y.Z` tag | Verifies the tag matches the `VERSION` file, runs the test suite, pushes the versioned image to GHCR, creates a GitHub Release with auto-generated notes and a source tarball, then triggers the deploy |
+| **Deploy** (`deploy.yml`) | chained from Release, or manual | SSHes into the Lightsail instance and updates it via Docker Compose; run it manually from the Actions tab to redeploy or roll back any released tag |
 
-The Docker job uses GitHub Actions layer cache to speed up rebuilds and tags each image with both `latest` and the commit SHA for traceability.
+Superseded CI runs on the same branch are cancelled automatically, and Docker builds use the Actions layer cache.
 
 ### Releases & automatic deployment
 
-Pushing a `vX.Y.Z` tag triggers the **Release** pipeline: version check against the `VERSION` file, full test run, versioned image push to GHCR, GitHub Release with a source artifact, and an automatic SSH deploy to the AWS Lightsail instance, where Docker Compose pulls and runs the newly released image. The running version is exposed at `GET /healthz`. See [RELEASING.md](RELEASING.md) for the full release/rollback procedure and one-time server setup.
+The `VERSION` file is the single source of truth; the running version is exposed at `GET /healthz`, which the deploy polls to confirm the new release is actually live before reporting success. On the server, `deploy.sh` pins the released tag in `/opt/book_reservation/.env`, so Docker Compose always resolves to the exact deployed version — including on manual `docker compose up -d`. See [RELEASING.md](RELEASING.md) for the release/rollback procedure and one-time server setup.
 
 ## Project structure
 
 ```
 book_reservation/
+├── .github/workflows/  # ci.yml, release.yml, deploy.yml
+├── deploy/             # docker-compose.yml, deploy.sh, .env.example (Lightsail)
+├── VERSION             # Current release version (single source of truth)
+├── RELEASING.md        # Release & deployment guide
 ├── book/               # Book CRUD (models, views, forms, URLs)
 ├── category/           # Category CRUD + live search
-├── login/              # Auth views: index, sign-in, dashboard
+├── login/              # Auth views: index, sign-in, dashboard, admin management
 ├── reserve/            # Public reservation + dashboard management
 └── book_reservation/   # Django config — settings, root URLs, templates, static
     ├── static/
@@ -135,7 +140,7 @@ book_reservation/
     └── templates/
         ├── base_templates/base_template.html
         ├── forms/      # Reusable modal partials
-        ├── book.html, category.html, dashboard.html, index.html, login.html
+        ├── book.html, category.html, dashboard.html, index.html, login.html, admins.html
 ```
 
 ### Apps
