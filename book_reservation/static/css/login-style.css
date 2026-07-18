@@ -243,6 +243,117 @@ body {
 }
 .lbr-btn-submit:active { transform: translateY(0); }
 
+/* ---- Demo access card ---- */
+.lbr-auth-divider {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin: 1.5rem 0;
+  font-size: .62rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.lbr-auth-divider::before,
+.lbr-auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* A miniature of the left branding panel: dark surface, grid
+   texture, amber glow — so the card carries the page identity. */
+.lbr-demo-card {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border-dark);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.3rem 1.05rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+.lbr-demo-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 36px 36px;
+  pointer-events: none;
+}
+.lbr-demo-card::after {
+  content: '';
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(201,145,42,.14) 0%, transparent 70%);
+  top: -80px;
+  right: -70px;
+  pointer-events: none;
+}
+.lbr-demo-card > * { position: relative; z-index: 1; }
+.lbr-demo-head {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .6rem;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: .5rem;
+}
+.lbr-demo-head i { font-size: .75rem; }
+.lbr-demo-text {
+  font-size: .78rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: rgba(232,224,208,.55);
+  letter-spacing: .15px;
+  margin-bottom: .95rem;
+}
+.lbr-demo-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  width: 100%;
+  height: 42px;
+  background: var(--gold);
+  border: none;
+  border-radius: var(--radius);
+  color: #fff;
+  font-family: 'Jost', sans-serif;
+  font-size: .85rem;
+  font-weight: 500;
+  letter-spacing: .5px;
+  cursor: pointer;
+  transition: background .17s, box-shadow .17s, transform .1s;
+}
+.lbr-demo-btn:hover {
+  background: #b07d22;
+  box-shadow: 0 4px 14px rgba(201,145,42,.28);
+  transform: translateY(-1px);
+}
+.lbr-demo-btn:active { transform: translateY(0); }
+.lbr-demo-btn:disabled {
+  cursor: not-allowed;
+  opacity: .6;
+  transform: none;
+  box-shadow: none;
+}
+.lbr-demo-creds {
+  font-family: 'Consolas', 'Menlo', monospace;
+  font-size: .68rem;
+  color: var(--muted-on-dark);
+  text-align: center;
+  letter-spacing: .3px;
+  margin: .7rem 0 0;
+}
+
 .lbr-auth-copyright {
   font-size: .72rem;
   color: #b8b0a5;

@@ -1,5 +1,7 @@
 var bookTable = $('#book_table').DataTable({
     'ajax': './get',
+    'processing': true,
+    'language': { 'processing': LBR_DT_PROCESSING },
     'columns': [{
         'data': 'number_serie',
     },
@@ -30,36 +32,44 @@ var bookTable = $('#book_table').DataTable({
 });
 
 $("#search_label_category").keyup(function () {
-    $("#select_category").empty();
     loadSearchCategories();
 });
 
 function loadSearchCategories() {
+    var $select = $("#select_category");
+    $select.empty().append(new Option('Searching categories…', ''));
     $.ajax({
         url: "../category/search",
         type: "GET",
         data: { criteria: $("#search_label_category").val() },
         success: function (data) {
+            $select.empty();
             if (data.length > 0) {
                 for (var i = 0; i < data.length; i++) {
-                    $("#select_category").append(new Option(data[i].category, data[i].id))
+                    $select.append(new Option(data[i].category, data[i].id))
                 }
             } else {
-                $("#select_category").append(new Option('No results ..', ''))
+                $select.append(new Option('No results ..', ''))
             }
         },
         error: function () {
-            $.notify('This resource is not avalaible', 'error');
+            $select.empty().append(new Option('Could not load categories', ''));
+            showAlert('error', 'This resource is not available.');
         }
     });
 }
 
 $('#form_book').submit(function (event) {
     event.preventDefault();
+    var $form = $(this);
+    var formData = $form.serialize(); // before locking: disabled fields don't serialize
+    var $submitBtn = $('#book_button_form');
+    setButtonLoading($submitBtn, true);
+    setFormLoading($form, true);
     $.ajax({
         url: getUrlDispatch(),
         type: "POST",
-        data: $("#form_book").serialize(),
+        data: formData,
         success: function (data) {
             switch (parseInt(data.status)) {
                 case -1:
@@ -73,7 +83,11 @@ $('#form_book').submit(function (event) {
             }
         },
         error: function () {
-            $.notify('This resource is not avalaible', 'error');
+            showAlert('error', 'This resource is not available.');
+        },
+        complete: function () {
+            setFormLoading($form, false);
+            setButtonLoading($submitBtn, false);
         }
     });
 });
@@ -122,10 +136,14 @@ $('#book_table tbody').on('click', '#remove_book_btn', function () {
 });
 
 
-function deleteBook() {
+function deleteBook(btn) {
+    var $form = $("#form_delete_book");
+    var formData = $form.serialize(); // before locking: disabled fields don't serialize
+    setButtonLoading(btn, true);
+    setFormLoading($form, true);
     $.ajax({
         url: '/book/delete/',
-        data: $("#form_delete_book").serialize(),
+        data: formData,
         type: "POST",
         success: function (data) {
             switch (parseInt(data.status)) {
@@ -141,7 +159,11 @@ function deleteBook() {
             }
         },
         error: function () {
-            $.notify('This resource is not avalaible', 'error');
+            showAlert('error', 'This resource is not available.');
+        },
+        complete: function () {
+            setFormLoading($form, false);
+            setButtonLoading(btn, false);
         }
     });
 }

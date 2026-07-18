@@ -28,7 +28,7 @@ $('#reserve_modal').on('show.bs.modal', function () {
         },
         error: function () {
             $select.empty().append(new Option('Could not load books', ''));
-            $.notify('Could not load the book list.', 'error');
+            showAlert('error', 'Could not load the book list.');
         }
     });
 });
@@ -58,11 +58,16 @@ $('#reserve_modal').on('hidden.bs.modal', function () {
 // Submit reservation
 $('#form_reserve').submit(function (event) {
     event.preventDefault();
+    var $form = $(this);
+    var formData = $form.serialize(); // before locking: disabled fields don't serialize
+    var $submitBtn = $form.find('button[type="submit"]');
+    setButtonLoading($submitBtn, true);
+    setFormLoading($form, true);
 
     $.ajax({
         url: '/reserve/save/',
         type: 'POST',
-        data: $('#form_reserve').serialize(),
+        data: formData,
         success: function (data) {
             switch (parseInt(data.status)) {
                 case 1:
@@ -75,7 +80,11 @@ $('#form_reserve').submit(function (event) {
             }
         },
         error: function () {
-            $.notify('This resource is not available.', 'error');
+            showAlert('error', 'This resource is not available.');
+        },
+        complete: function () {
+            setFormLoading($form, false);
+            setButtonLoading($submitBtn, false);
         }
     });
 });

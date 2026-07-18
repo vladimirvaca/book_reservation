@@ -1,0 +1,51 @@
+<div class="modal fade" id="admin_modal" tabindex="-1" role="dialog" aria-labelledby="adminModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="adminModalLabel">
+                    <i class="fas fa-user-shield mr-2" style="color:var(--gold);font-size:.95rem;"></i>New Admin
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="needs-validation" id="form_admin" method="POST" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" id="admin_label_id" name="id" value="">
+                    <div class="form-group">
+                        <label for="admin_label_username">Username</label>
+                        <input type="text" class="form-control" id="admin_label_username"
+                            name="username" placeholder="e.g. jane.doe" autocomplete="off" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="admin_label_email">Email <span style="text-transform:none;font-weight:400;">(optional)</span></label>
+                        <input type="email" class="form-control" id="admin_label_email"
+                            name="email" placeholder="name@example.com" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="admin_label_password1">Password</label>
+                        <input type="password" class="form-control" id="admin_label_password1"
+                            name="password1" placeholder="At least 8 characters" autocomplete="new-password"
+                            minlength="8" required>
+                        <small class="form-text" id="admin_password_hint" style="color:var(--text-muted);font-size:.75rem;">
+                            Minimum 8 characters, not entirely numeric and not too common.
+                        </small>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label for="admin_label_password2">Confirm Password</label>
+                        <input type="password" class="form-control" id="admin_label_password2"
+                            name="password2" placeholder="Repeat the password" autocomplete="new-password"
+                            minlength="8" required>
+                    </div>
+                    <div class="modal-footer mt-0 px-0 pb-0">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button id="admin_button_form" class="btn btn-primary">
+                            <i class="fas fa-user-plus mr-1"></i> Create Admin
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

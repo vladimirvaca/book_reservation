@@ -381,6 +381,8 @@ button.lbr-nav-link {
 .lbr-status-checked-out { background: rgba(37,99,235,.07); color: #2563eb; border: 1px solid rgba(37,99,235,.14); }
 .lbr-status-returned    { background: rgba(63,185,80,.07); color: #2ea043; border: 1px solid rgba(63,185,80,.18); }
 .lbr-status-overdue     { background: rgba(190,59,46,.07); color: var(--danger); border: 1px solid rgba(190,59,46,.18); }
+.lbr-role-super         { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(201,145,42,.2); }
+.lbr-role-admin         { background: rgba(0,0,0,.04); color: var(--text-muted); border: 1px solid var(--border); }
 
 /* Action buttons in DataTable */
 .lbr-action-btn { padding: .2rem .5rem !important; }

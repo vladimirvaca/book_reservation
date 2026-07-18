@@ -3,6 +3,8 @@ var reservationTable;
 $(document).ready(function () {
     reservationTable = $('#reservation_table').DataTable({
         'ajax': '/reserve/get/',
+        'processing': true,
+        'language': { 'processing': LBR_DT_PROCESSING },
         'columns': [
             { 'data': 'name' },
             { 'data': 'dni' },
@@ -38,12 +40,12 @@ $(document).ready(function () {
 
     $('#reservation_table tbody').on('click', '#reservation_checkout_btn', function () {
         var row = reservationTable.row($(this).parents('tr')).data();
-        updateReservationStatus(row.id, 'checked_out');
+        updateReservationStatus(row.id, 'checked_out', this);
     });
 
     $('#reservation_table tbody').on('click', '#reservation_return_btn', function () {
         var row = reservationTable.row($(this).parents('tr')).data();
-        updateReservationStatus(row.id, 'returned');
+        updateReservationStatus(row.id, 'returned', this);
     });
 
     $('#reservation_table tbody').on('click', '#reservation_delete_btn', function () {
@@ -55,10 +57,15 @@ $(document).ready(function () {
 
     $('#form_delete_reservation').submit(function (event) {
         event.preventDefault();
+        var $form = $(this);
+        var formData = $form.serialize(); // before locking: disabled fields don't serialize
+        var $submitBtn = $form.find('button[type="submit"]');
+        setButtonLoading($submitBtn, true);
+        setFormLoading($form, true);
         $.ajax({
             url: '/reserve/delete/',
             type: 'POST',
-            data: $(this).serialize(),
+            data: formData,
             success: function (data) {
                 switch (parseInt(data.status)) {
                     case 1:
@@ -72,7 +79,11 @@ $(document).ready(function () {
                 }
             },
             error: function () {
-                $.notify('Could not clear reservation.', 'error');
+                showAlert('error', 'Could not clear reservation.');
+            },
+            complete: function () {
+                setFormLoading($form, false);
+                setButtonLoading($submitBtn, false);
             }
         });
     });
@@ -89,7 +100,19 @@ function renderStatusBadge(status) {
     return '<span class="lbr-status-badge ' + c.cls + '">' + c.label + '</span>';
 }
 
-function updateReservationStatus(reservationId, newStatus) {
+function setRowActionsLocked(locked) {
+    // Lock every row action so a second update can't start mid-request;
+    // the spinning button is skipped (setButtonLoading owns its state).
+    $('#reservation_table .lbr-action-btn').each(function () {
+        if (!$(this).data('lbrLoading')) {
+            $(this).prop('disabled', locked);
+        }
+    });
+}
+
+function updateReservationStatus(reservationId, newStatus, btn) {
+    setButtonLoading(btn, true);
+    setRowActionsLocked(true);
     $.ajax({
         url: '/reserve/update/' + reservationId + '/',
         type: 'POST',
@@ -100,16 +123,21 @@ function updateReservationStatus(reservationId, newStatus) {
         success: function (data) {
             switch (parseInt(data.status)) {
                 case 1:
+                    // The reload redraws the rows, replacing all locked buttons
                     reservationTable.ajax.reload(null, false);
                     showAlert(data.type, data.message);
                     break;
                 case -1:
+                    setButtonLoading(btn, false);
+                    setRowActionsLocked(false);
                     showAlert(data.type, data.message);
                     break;
             }
         },
         error: function () {
-            $.notify('Could not update reservation.', 'error');
+            setButtonLoading(btn, false);
+            setRowActionsLocked(false);
+            showAlert('error', 'Could not update reservation.');
         }
     });
 }

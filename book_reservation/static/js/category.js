@@ -1,6 +1,8 @@
 
 var categoryTable = $('#category_table').DataTable({
     'ajax': './get',
+    'processing': true,
+    'language': { 'processing': LBR_DT_PROCESSING },
     'columns': [{
             'data': 'category'
         },
@@ -28,10 +30,15 @@ var categoryTable = $('#category_table').DataTable({
 
 $('#form_category').submit(function (event) {
     event.preventDefault();
+    var $form = $(this);
+    var formData = $form.serialize(); // before locking: disabled fields don't serialize
+    var $submitBtn = $('#category_button_form');
+    setButtonLoading($submitBtn, true);
+    setFormLoading($form, true);
     $.ajax({
         url: getUrlDispatch(),
         type: "POST",
-        data: $("#form_category").serialize(),
+        data: formData,
         success: function (data) {
             switch (parseInt(data.status)) {
                 case -1:
@@ -45,7 +52,11 @@ $('#form_category').submit(function (event) {
             }
         },
         error: function () {
-            $.notify('This resource is not avalaible', 'error');
+            showAlert('error', 'This resource is not available.');
+        },
+        complete: function () {
+            setFormLoading($form, false);
+            setButtonLoading($submitBtn, false);
         }
     });
 });
@@ -72,10 +83,14 @@ $('#category_table tbody').on('click', '#remove_category_btn', function () {
     $('#category_modal_delete').modal('show');
 });
 
-function deleteCategory() {
+function deleteCategory(btn) {
+    var $form = $("#form_delete_category");
+    var formData = $form.serialize(); // before locking: disabled fields don't serialize
+    setButtonLoading(btn, true);
+    setFormLoading($form, true);
     $.ajax({
         url: '/category/delete/',
-        data: $("#form_delete_category").serialize(),
+        data: formData,
         type: "POST",
         success: function (data) {
             switch (parseInt(data.status)) {
@@ -91,7 +106,11 @@ function deleteCategory() {
             }
         },
         error: function () {
-            $.notify('This resource is not avalaible', 'error');
+            showAlert('error', 'This resource is not available.');
+        },
+        complete: function () {
+            setFormLoading($form, false);
+            setButtonLoading(btn, false);
         }
     });
 }
@@ -105,8 +124,6 @@ function showModal() {
     $('#category_label_id').val('');
     $('#category_label_category').val('');
     $('#category_label_description').val('');
-    $('#category_label_description').val('');
-    //search_label_category
     $('#category_modal').modal('show');
     //Validation of form
     $('#form_category').removeClass();

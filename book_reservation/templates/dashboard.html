@@ -69,6 +69,15 @@
                 <i class="fas fa-book"></i> Books
             </a>
         </div>
+        {% if user.is_superuser %}
+        <div class="lbr-nav-section">
+            <span class="lbr-nav-section-label">System</span>
+            <a href="{% url 'admins' %}"
+               class="lbr-nav-link {% if request.resolver_match.url_name == 'admins' %}active{% endif %}">
+                <i class="fas fa-user-shield"></i> Admins
+            </a>
+        </div>
+        {% endif %}
     </div>
 
     <div class="lbr-sidebar-footer">
