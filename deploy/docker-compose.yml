@@ -3,7 +3,8 @@
 # Lives at /opt/book_reservation/docker-compose.yml — the deploy workflow
 # copies it there on every deploy so the server always matches the repo.
 #
-# IMAGE and HOST_PORT are interpolated from /opt/book_reservation/.env;
+# IMAGE and HOST_PORT are interpolated from /opt/book_reservation/.env,
+# which the workflow renders from GitHub secrets/vars on every deploy;
 # deploy/deploy.sh pins IMAGE to the exact release tag being deployed, so a
 # plain `docker compose up -d` on the server always restores the version
 # that was last released — never an unvetted `latest`.

@@ -126,7 +126,7 @@ The `VERSION` file is the single source of truth; the running version is exposed
 ```
 book_reservation/
 ├── .github/workflows/  # ci.yml, release.yml, deploy.yml
-├── deploy/             # docker-compose.yml, deploy.sh, .env.example (Lightsail)
+├── deploy/             # docker-compose.yml + deploy.sh for the Lightsail host
 ├── VERSION             # Current release version (single source of truth)
 ├── RELEASING.md        # Release & deployment guide
 ├── book/               # Book CRUD (models, views, forms, URLs)

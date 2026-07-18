@@ -8,8 +8,18 @@
 #   LIGHTSAIL_HOST     — public IP or hostname of the instance
 #   LIGHTSAIL_USER     — SSH user (e.g. ubuntu)
 #   LIGHTSAIL_SSH_KEY  — private key (PEM) authorized on the instance
-# Optional:
+#   DJANGO_SECRET_KEY  — production Django secret key
+# Optional secrets:
 #   LIGHTSAIL_PORT     — SSH port, defaults to 22
+# Repository variables (Settings → Secrets and variables → Variables):
+#   DJANGO_ALLOWED_HOSTS         — e.g. books.example.com (127.0.0.1 and
+#                                  localhost are appended automatically for
+#                                  the container health checks)
+#   DJANGO_CSRF_TRUSTED_ORIGINS  — optional, e.g. https://books.example.com
+#   HOST_PORT                    — optional host port, defaults to 8000
+#
+# The production .env is rendered from these on every deploy and copied to
+# the server — nothing is configured by hand on the instance.
 name: Deploy
 
 on:
@@ -55,11 +65,39 @@ jobs:
           chmod 600 ~/.ssh/id_deploy
           ssh-keyscan -p "$SSH_PORT" -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
-      - name: Copy compose file to server
+      - name: Render production .env
+        env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DJANGO_ALLOWED_HOSTS: ${{ vars.DJANGO_ALLOWED_HOSTS }}
+          DJANGO_CSRF_TRUSTED_ORIGINS: ${{ vars.DJANGO_CSRF_TRUSTED_ORIGINS }}
+          HOST_PORT: ${{ vars.HOST_PORT }}
+        run: |
+          if [ -z "$DJANGO_SECRET_KEY" ]; then
+            echo "::error::DJANGO_SECRET_KEY secret is not set."
+            exit 1
+          fi
+          {
+            echo "DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY"
+            echo "DJANGO_DEBUG=False"
+            # 127.0.0.1/localhost are required by the Docker HEALTHCHECK and
+            # the deploy smoke test; duplicates are harmless to Django.
+            echo "DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS:+$DJANGO_ALLOWED_HOSTS,}127.0.0.1,localhost"
+            if [ -n "$DJANGO_CSRF_TRUSTED_ORIGINS" ]; then
+              echo "DJANGO_CSRF_TRUSTED_ORIGINS=$DJANGO_CSRF_TRUSTED_ORIGINS"
+            fi
+            if [ -n "$HOST_PORT" ]; then
+              echo "HOST_PORT=$HOST_PORT"
+            fi
+          } > production.env
+
+      - name: Copy compose file and .env to server
         run: |
           scp -i ~/.ssh/id_deploy -P "$SSH_PORT" \
             deploy/docker-compose.yml \
             "$SSH_USER@$SSH_HOST:/opt/book_reservation/docker-compose.yml"
+          scp -i ~/.ssh/id_deploy -P "$SSH_PORT" \
+            production.env \
+            "$SSH_USER@$SSH_HOST:/opt/book_reservation/.env"
 
       - name: Run deploy script on server
         env:

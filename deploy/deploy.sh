@@ -3,9 +3,8 @@
 #
 # Streamed to the server by .github/workflows/deploy.yml with IMAGE,
 # APP_VERSION, GHCR_USER and GHCR_TOKEN in the environment. Expects Docker
-# (with the compose plugin) installed, docker-compose.yml in place (the
-# workflow copies it) and /opt/book_reservation/.env present
-# (see deploy/.env.example).
+# (with the compose plugin) installed; docker-compose.yml and .env are
+# rendered/copied to /opt/book_reservation/ by the workflow beforehand.
 set -euo pipefail
 
 : "${IMAGE:?IMAGE is required (e.g. ghcr.io/owner/repo:v1.2.3)}"
@@ -16,7 +15,7 @@ cd "$APP_DIR"
 
 for required in .env docker-compose.yml; do
     if [ ! -f "$required" ]; then
-        echo "Missing $APP_DIR/$required — see RELEASING.md for one-time setup." >&2
+        echo "Missing $APP_DIR/$required — the deploy workflow should have copied it." >&2
         exit 1
     fi
 done
