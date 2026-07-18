@@ -48,7 +48,9 @@ echo "==> Running database migrations"
 docker compose run --rm web python manage.py migrate --noinput
 
 echo "==> Starting new container"
-docker compose up -d web
+# --force-recreate: compose does not reliably recreate on env_file-only
+# changes; recreating guarantees the rendered .env is what actually runs.
+docker compose up -d --force-recreate web
 
 # Host port to probe; must match the compose port mapping.
 HOST_PORT="$(sed -n 's/^HOST_PORT=//p' .env | tail -1)"
@@ -60,6 +62,15 @@ for _ in $(seq 1 30); do
         echo "healthz: $body"
         # JsonResponse renders with a space after the colon.
         if echo "$body" | grep -q "\"version\": \"${APP_VERSION#v}\""; then
+            # Also probe with the real public hostname so an ALLOWED_HOSTS
+            # misconfiguration (400) fails the deploy instead of hiding
+            # behind the always-allowed 127.0.0.1.
+            PRIMARY_HOST="$(sed -n 's/^DJANGO_ALLOWED_HOSTS=//p' .env | cut -d, -f1)"
+            if [ -n "$PRIMARY_HOST" ] && ! curl -fsS -o /dev/null \
+                -H "Host: $PRIMARY_HOST" "http://127.0.0.1:$HOST_PORT/healthz"; then
+                echo "App rejects Host: $PRIMARY_HOST — check DJANGO_ALLOWED_HOSTS." >&2
+                exit 1
+            fi
             echo "==> Deploy of $APP_VERSION succeeded"
             docker image prune -f >/dev/null
             exit 0
