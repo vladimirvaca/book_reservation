@@ -17,16 +17,20 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.environ.get(
-    'DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1'
-).split(',')
+# Whitespace-tolerant: "a.com, b.com" must not yield " b.com", which Django
+# would silently never match (every request answers 400).
+ALLOWED_HOSTS = [
+    host.strip() for host in
+    os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    if host.strip()
+]
 
 # Required when the site is served under a real domain (with or without TLS)
 # so that POSTs pass Django's Origin check, e.g. "https://books.example.com".
 CSRF_TRUSTED_ORIGINS = [
-    origin for origin in
+    origin.strip() for origin in
     os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',')
-    if origin
+    if origin.strip()
 ]
 
 # ── Application ───────────────────────────────────────────────────────────────
