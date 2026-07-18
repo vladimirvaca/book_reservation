@@ -1,6 +1,7 @@
 
 var adminTable = $('#admin_table').DataTable({
     'ajax': '/admins/get/',
+    'responsive': true,
     'processing': true,
     'language': { 'processing': LBR_DT_PROCESSING },
     'columns': [
@@ -111,7 +112,7 @@ function showModal() {
 }
 
 $('#admin_table tbody').on('click', '#edit_admin_btn', function () {
-    let data = adminTable.row($(this).parents('tr')).data();
+    let data = lbrRowData(adminTable, this);
     $('#admin_button_form').html('<i class="far fa-edit mr-1"></i> Edit Admin');
     $('#admin_button_form').removeClass();
     $('#admin_button_form').addClass('btn btn-warning');
@@ -142,7 +143,7 @@ function setPasswordFieldsRequired(required) {
 }
 
 $('#admin_table tbody').on('click', '#remove_admin_btn', function () {
-    let data = adminTable.row($(this).parents('tr')).data();
+    let data = lbrRowData(adminTable, this);
     $('#admin_delete_value').val(data.id);
     $('#admin_to_delete').html(data.username);
     $('#admin_modal_delete').modal('show');

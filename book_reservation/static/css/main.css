@@ -237,6 +237,45 @@ div.dataTables_wrapper .dataTables_length label {
   border-color: var(--gold) !important;
 }
 
+/* ---- DataTables responsive (collapsed child rows) ---- */
+/* Expand/collapse control dot — gold instead of the plugin default */
+table.dataTable.dtr-inline.collapsed > tbody > tr > td:first-child:before,
+table.dataTable.dtr-inline.collapsed > tbody > tr > th:first-child:before {
+  background-color: var(--gold) !important;
+  border: none !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25) !important;
+  top: 50% !important;
+  margin-top: -7px;
+}
+table.dataTable > tbody > tr.child:hover td { background: transparent !important; }
+table.dataTable > tbody > tr.child ul.dtr-details {
+  width: 100%;
+  padding: .25rem 0;
+}
+table.dataTable > tbody > tr.child ul.dtr-details > li {
+  display: flex;
+  align-items: baseline;
+  gap: .75rem;
+  padding: .45rem 0;
+  border-bottom: 1px solid var(--border) !important;
+}
+table.dataTable > tbody > tr.child ul.dtr-details > li:last-child { border-bottom: none !important; }
+table.dataTable > tbody > tr.child span.dtr-title {
+  font-family: 'Jost', sans-serif;
+  font-size: .65rem;
+  font-weight: 600;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  min-width: 92px;
+  flex-shrink: 0;
+}
+table.dataTable > tbody > tr.child span.dtr-data {
+  font-size: .875rem;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
 /* ---- DataTables ajax loading indicator ---- */
 div.dataTables_processing {
   background: var(--surface) !important;
@@ -416,3 +455,46 @@ textarea.form-control:disabled {
 .lbr-toast--warn .lbr-toast-progress { background: #c97c1a; }
 .lbr-toast--info .lbr-toast-icon { color: var(--gold-light); background: var(--gold-dim); }
 .lbr-toast--info .lbr-toast-progress { background: var(--gold); }
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+@media (max-width: 767.98px) {
+  /* 16px inputs prevent iOS Safari from auto-zooming on focus */
+  .form-control,
+  .custom-select {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  /* Modal chrome: tighter, full-width friendly */
+  .modal-header { padding: 1rem 1.1rem; }
+  .modal-body { padding: 1.35rem 1.1rem; }
+  .modal-footer { padding: .875rem 1.1rem; }
+
+  /* DataTables controls stack; give the search box the full row */
+  div.dataTables_wrapper .dataTables_filter { text-align: left; }
+  div.dataTables_wrapper .dataTables_filter label {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: .5rem;
+  }
+  div.dataTables_wrapper .dataTables_filter input {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+    font-size: 16px !important;
+  }
+  div.dataTables_wrapper .dataTables_length { margin-bottom: .25rem; }
+  div.dataTables_wrapper .dataTables_paginate .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: .5rem;
+  }
+  div.dataTables_wrapper .dataTables_info {
+    text-align: center;
+    padding-top: .5rem;
+  }
+}

@@ -1,5 +1,6 @@
 var bookTable = $('#book_table').DataTable({
     'ajax': './get',
+    'responsive': true,
     'processing': true,
     'language': { 'processing': LBR_DT_PROCESSING },
     'columns': [{
@@ -116,7 +117,7 @@ function showModal() {
 }
 
 $('#book_table tbody').on('click', '#edit_book_btn', function () {
-    let data = bookTable.row($(this).parents('tr')).data();
+    let data = lbrRowData(bookTable, this);
     $('#book_button_form').html('Edit');
     $('#book_button_form').removeClass();
     $('#book_button_form').addClass('btn btn-warning');
@@ -129,7 +130,7 @@ $('#book_table tbody').on('click', '#edit_book_btn', function () {
 });
 
 $('#book_table tbody').on('click', '#remove_book_btn', function () {
-    let data = bookTable.row($(this).parents('tr')).data();
+    let data = lbrRowData(bookTable, this);
     $('#book_delete_value').val(data.id);
     $('#book_to_delete').html(data.category);
     $('#book_modal_delete').modal('show');

@@ -44,7 +44,7 @@
 <!-- ======================================================
      SIDEBAR
      ====================================================== -->
-<nav class="lbr-sidebar">
+<nav class="lbr-sidebar" id="lbr_sidebar">
     <a href="{% url 'index' %}" class="lbr-sidebar-brand">
         <i class="fas fa-book-open"></i>
         <span class="lbr-sidebar-brand-name">Book Reservation</span>
@@ -93,10 +93,17 @@
     </div>
 </nav>
 
+<!-- Backdrop shown behind the off-canvas sidebar on mobile -->
+<div class="lbr-sidebar-backdrop" id="lbr_sidebar_backdrop"></div>
+
 <!-- ======================================================
      TOPBAR
      ====================================================== -->
 <header class="lbr-topbar">
+    <button type="button" class="lbr-menu-btn" id="lbr_sidebar_toggle"
+            aria-label="Open menu" aria-expanded="false" aria-controls="lbr_sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
     <span class="lbr-topbar-title">{% block page_title %}Dashboard{% endblock %}</span>
     <div class="lbr-topbar-actions">
         <div class="lbr-user-chip">
@@ -187,17 +194,17 @@
                 </h3>
             </div>
             <div class="p-3">
-                <table id="reservation_table" class="table table-hover" style="width:100%">
+                <table id="reservation_table" class="table table-hover dt-responsive nowrap" style="width:100%">
                     <thead>
                         <tr>
-                            <th>Borrower</th>
+                            <th data-priority="1">Borrower</th>
                             <th>DNI</th>
-                            <th>Book</th>
+                            <th data-priority="3">Book</th>
                             <th>Start Date</th>
-                            <th>Return By</th>
-                            <th>Status</th>
-                            <th></th>
-                            <th></th>
+                            <th data-priority="4">Return By</th>
+                            <th data-priority="5">Status</th>
+                            <th data-priority="2"></th>
+                            <th data-priority="2"></th>
                         </tr>
                     </thead>
                 </table>

@@ -121,6 +121,23 @@ button.lbr-nav-link {
   flex-shrink: 0;
 }
 
+/* Backdrop behind the off-canvas sidebar (mobile only) */
+.lbr-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,12,8,.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 290;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease, visibility .25s ease;
+}
+.lbr-sidebar-backdrop--visible {
+  opacity: 1;
+  visibility: visible;
+}
+
 /* ============================================================
    TOPBAR
    ============================================================ */
@@ -137,6 +154,28 @@ button.lbr-nav-link {
   align-items: center;
   padding: 0 1.5rem;
   gap: 1rem;
+}
+
+/* Hamburger — hidden on desktop, shown on mobile */
+.lbr-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: .9rem;
+  cursor: pointer;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.lbr-menu-btn:hover {
+  color: var(--text);
+  border-color: var(--gold);
+  background: var(--cream);
 }
 
 .lbr-topbar-title {
@@ -386,3 +425,72 @@ button.lbr-nav-link {
 
 /* Action buttons in DataTable */
 .lbr-action-btn { padding: .2rem .5rem !important; }
+
+/* ============================================================
+   MOBILE / TABLET
+   ============================================================ */
+
+/* Off-canvas sidebar below the desktop breakpoint */
+@media (max-width: 991.98px) {
+  .lbr-sidebar {
+    width: 256px;
+    transform: translateX(-100%);
+  }
+  .lbr-sidebar--open {
+    transform: translateX(0);
+    box-shadow: 0 0 48px rgba(0,0,0,.4);
+  }
+  body.lbr-no-scroll { overflow: hidden; }
+
+  .lbr-topbar {
+    left: 0;
+    padding: 0 1rem;
+    gap: .75rem;
+  }
+  .lbr-menu-btn { display: flex; }
+  .lbr-main { margin-left: 0; }
+
+  /* Slightly roomier nav links for touch */
+  .lbr-nav-link { padding: .7rem .625rem; }
+}
+
+/* Phone-size layout */
+@media (max-width: 575.98px) {
+  .lbr-content { padding: 1.15rem 1rem 1.75rem; }
+
+  .lbr-page-header {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+  }
+  .lbr-page-title { font-size: 1.5rem; }
+
+  .lbr-topbar-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lbr-user-chip-name { display: none; }
+  .lbr-user-chip { padding: .28rem .3rem; }
+
+  .lbr-stat-card { padding: 1.1rem 1rem; }
+
+  .lbr-welcome-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem 1.25rem;
+    gap: 1.25rem;
+  }
+  .lbr-welcome-actions { flex-wrap: wrap; }
+  .lbr-welcome-title { font-size: 1.35rem; }
+
+  .lbr-table-panel-header { padding: .9rem 1rem; }
+  .lbr-table-panel .dataTables_wrapper { padding: .75rem .875rem 1rem; }
+}
+
+/* Comfortable tap targets on touch devices */
+@media (pointer: coarse) {
+  .lbr-action-btn { padding: .45rem .65rem !important; }
+}

@@ -71,6 +71,7 @@ body {
 /* ---- Hero ---- */
 .lbr-hero {
   min-height: calc(100vh - 62px);
+  min-height: calc(100svh - 62px);
   display: flex;
   align-items: center;
   position: relative;
@@ -443,4 +444,47 @@ body {
   margin: 0;
   text-align: center;
   letter-spacing: .3px;
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+@media (max-width: 767.98px) {
+  .lbr-hero-inner { padding: 3.5rem 1rem 5rem; }
+  .lbr-hero-title { letter-spacing: -1.5px; }
+  .lbr-hero-sub { font-size: .92rem; padding: 0 .5rem; }
+  .lbr-hero-actions { gap: .75rem; }
+  .lbr-btn-primary,
+  .lbr-btn-ghost { padding: .8rem 1.75rem; }
+
+  .lbr-features,
+  .lbr-reserve { padding: 3.5rem 0; }
+  .lbr-features-header {
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+  }
+  .lbr-section-title { font-size: 2rem; }
+
+  .lbr-feature-row {
+    gap: 1rem;
+    padding: 1.5rem 0;
+  }
+  .lbr-feature-row:hover { padding-left: 0; }
+  .lbr-feature-num {
+    font-size: 1.35rem;
+    min-width: 1.35rem;
+  }
+
+  .lbr-reserve-title { font-size: 2.25rem; }
+  .lbr-reserve-steps {
+    flex-direction: column;
+    align-items: center;
+    gap: .875rem;
+    margin-bottom: 2rem;
+  }
+}
+
+/* Short viewports (landscape phones): the bobbing hint overlaps CTAs */
+@media (max-height: 640px) {
+  .lbr-scroll-hint { display: none; }
 }

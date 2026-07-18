@@ -3,6 +3,7 @@ var reservationTable;
 $(document).ready(function () {
     reservationTable = $('#reservation_table').DataTable({
         'ajax': '/reserve/get/',
+        'responsive': true,
         'processing': true,
         'language': { 'processing': LBR_DT_PROCESSING },
         'columns': [
@@ -39,17 +40,17 @@ $(document).ready(function () {
     });
 
     $('#reservation_table tbody').on('click', '#reservation_checkout_btn', function () {
-        var row = reservationTable.row($(this).parents('tr')).data();
+        var row = lbrRowData(reservationTable, this);
         updateReservationStatus(row.id, 'checked_out', this);
     });
 
     $('#reservation_table tbody').on('click', '#reservation_return_btn', function () {
-        var row = reservationTable.row($(this).parents('tr')).data();
+        var row = lbrRowData(reservationTable, this);
         updateReservationStatus(row.id, 'returned', this);
     });
 
     $('#reservation_table tbody').on('click', '#reservation_delete_btn', function () {
-        var row = reservationTable.row($(this).parents('tr')).data();
+        var row = lbrRowData(reservationTable, this);
         $('#delete_reservation_id').val(row.id);
         $('#reservation_name_to_delete').text(row.name + ' — ' + row.book);
         $('#deleteReservationModal').modal('show');

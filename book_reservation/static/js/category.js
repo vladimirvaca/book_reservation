@@ -1,6 +1,7 @@
 
 var categoryTable = $('#category_table').DataTable({
     'ajax': './get',
+    'responsive': true,
     'processing': true,
     'language': { 'processing': LBR_DT_PROCESSING },
     'columns': [{
@@ -66,7 +67,7 @@ function getUrlDispatch() {
 }
 
 $('#category_table tbody').on('click', '#edit_category_btn', function () {
-    let data = categoryTable.row($(this).parents('tr')).data();
+    let data = lbrRowData(categoryTable, this);
     $('#category_button_form').html('Edit');
     $('#category_button_form').removeClass();
     $('#category_button_form').addClass('btn btn-warning');
@@ -77,7 +78,7 @@ $('#category_table tbody').on('click', '#edit_category_btn', function () {
 });
 
 $('#category_table tbody').on('click', '#remove_category_btn', function () {
-    let data = categoryTable.row($(this).parents('tr')).data();
+    let data = lbrRowData(categoryTable, this);
     $('#category_delete_value').val(data.id);
     $('#category_to_delete').html(data.category);
     $('#category_modal_delete').modal('show');

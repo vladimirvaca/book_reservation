@@ -362,3 +362,27 @@ body {
   margin-bottom: 0;
   letter-spacing: .2px;
 }
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+@media (max-width: 767.98px) {
+  /* The fixed-height split layout becomes a normal scrolling page:
+     100vh + overflow:hidden clips content behind mobile browser bars */
+  html, body { height: auto; }
+  body {
+    overflow: auto;
+    background: var(--cream);
+  }
+  .lbr-auth {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+  .lbr-auth-right {
+    padding: 2.25rem 1.35rem;
+  }
+  /* 16px prevents iOS Safari zoom-on-focus */
+  .lbr-field { font-size: 16px !important; }
+}

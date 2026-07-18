@@ -129,3 +129,54 @@ function setFormLoading(form, loading) {
 
 // Shared DataTables options for the ajax loading indicator.
 var LBR_DT_PROCESSING = '<div class="lbr-dt-loading"><span class="lbr-spinner"></span>&nbsp; Loading&hellip;</div>';
+
+/* Resolve the DataTables row for a clicked element. With the Responsive
+   extension, collapsed columns render inside a tr.child row that has no
+   row data — the real row is the tr right before it. */
+function lbrRowData(table, el) {
+    var $tr = $(el).closest('tr');
+    if ($tr.hasClass('child')) {
+        $tr = $tr.prev();
+    }
+    return table.row($tr).data();
+}
+
+
+/* ============================================================
+   Off-canvas sidebar (dashboard on mobile)
+   ============================================================ */
+
+$(function () {
+    var $sidebar = $('#lbr_sidebar');
+    var $backdrop = $('#lbr_sidebar_backdrop');
+    var $toggle = $('#lbr_sidebar_toggle');
+    if ($sidebar.length === 0 || $toggle.length === 0) {
+        return;
+    }
+
+    function setSidebarOpen(open) {
+        $sidebar.toggleClass('lbr-sidebar--open', open);
+        $backdrop.toggleClass('lbr-sidebar-backdrop--visible', open);
+        $('body').toggleClass('lbr-no-scroll', open);
+        $toggle.attr('aria-expanded', open ? 'true' : 'false');
+    }
+
+    $toggle.on('click', function () {
+        setSidebarOpen(!$sidebar.hasClass('lbr-sidebar--open'));
+    });
+    $backdrop.on('click', function () {
+        setSidebarOpen(false);
+    });
+    $(document).on('keydown', function (event) {
+        if (event.key === 'Escape') {
+            setSidebarOpen(false);
+        }
+    });
+    // Leaving the mobile breakpoint: clear the open state so the
+    // desktop sidebar isn't left with a stale backdrop / scroll lock.
+    $(window).on('resize', function () {
+        if (window.innerWidth >= 992 && $sidebar.hasClass('lbr-sidebar--open')) {
+            setSidebarOpen(false);
+        }
+    });
+});
