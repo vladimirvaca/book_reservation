@@ -105,7 +105,7 @@ Three workflows in `.github/workflows/`:
 
 - **ci.yml** — push/PR to master: pylint (errors only), isort, tests; on master push also builds/pushes the Docker image to GHCR (`:latest` + commit SHA).
 - **release.yml** — on `vX.Y.Z` tag: verifies tag matches `VERSION`, tests, pushes `ghcr.io/<repo>:vX.Y.Z`, creates a GitHub Release with a source tarball, then chains into deploy.
-- **deploy.yml** — reusable + `workflow_dispatch` (redeploy/rollback any tag): renders the production `.env` from GitHub secrets/vars (`DJANGO_SECRET_KEY` secret; `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `HOST_PORT` vars), copies it and `deploy/docker-compose.yml` to `/opt/book_reservation/` on the AWS Lightsail host, then streams `deploy/deploy.sh` which pins `IMAGE=<tag>` in that `.env` and runs `docker compose pull` → `migrate` → `up -d`, then polls `/healthz` until it reports the deployed version. No config is hand-maintained on the server.
+- **deploy.yml** — reusable + `workflow_dispatch` (redeploy/rollback any tag): renders the production `.env` from GitHub secrets/vars (`DJANGO_SECRET_KEY` secret; `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `HOST_PORT` vars), copies it, `deploy/docker-compose.yml`, and `deploy/deploy.sh` to `/opt/book_reservation/` on the AWS Lightsail host, then executes `deploy.sh` which pins `IMAGE=<tag>` in that `.env` and runs `docker compose pull` → `migrate` → `up -d`, then polls `/healthz` until it reports the deployed version. No config is hand-maintained on the server.
 
 Release procedure, required secrets (`LIGHTSAIL_*`), and one-time server setup are documented in `RELEASING.md`. To cut a release: bump `VERSION`, commit, tag `vX.Y.Z`, push the tag.
 

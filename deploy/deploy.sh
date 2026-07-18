@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Deploys one release of book_reservation on the Lightsail host.
 #
-# Streamed to the server by .github/workflows/deploy.yml with IMAGE,
-# APP_VERSION, GHCR_USER and GHCR_TOKEN in the environment. Expects Docker
-# (with the compose plugin) installed; docker-compose.yml and .env are
-# rendered/copied to /opt/book_reservation/ by the workflow beforehand.
+# Copied to the server and executed by .github/workflows/deploy.yml with
+# IMAGE, APP_VERSION, GHCR_USER and GHCR_TOKEN in the environment. Expects
+# Docker (with the compose plugin) installed; docker-compose.yml and .env
+# are rendered/copied to /opt/book_reservation/ by the workflow beforehand.
 set -euo pipefail
 
 : "${IMAGE:?IMAGE is required (e.g. ghcr.io/owner/repo:v1.2.3)}"
@@ -45,7 +45,8 @@ APP_UID="$(docker run --rm "$IMAGE" id -u)"
 sudo -n chown -R "$APP_UID" "$APP_DIR/data"
 
 echo "==> Running database migrations"
-docker compose run --rm web python manage.py migrate --noinput
+# </dev/null: never let the one-off container inherit this script's stdin.
+docker compose run --rm -T web python manage.py migrate --noinput </dev/null
 
 echo "==> Starting new container"
 # --force-recreate: compose does not reliably recreate on env_file-only

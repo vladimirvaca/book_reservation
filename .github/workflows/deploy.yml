@@ -115,7 +115,7 @@ jobs:
             sudo -n chown -R "$USER" /opt/book_reservation
           '
 
-      - name: Copy compose file and .env to server
+      - name: Copy compose file, .env and deploy script to server
         run: |
           scp -i ~/.ssh/id_deploy -P "$SSH_PORT" \
             deploy/docker-compose.yml \
@@ -123,6 +123,9 @@ jobs:
           scp -i ~/.ssh/id_deploy -P "$SSH_PORT" \
             production.env \
             "$SSH_USER@$SSH_HOST:/opt/book_reservation/.env"
+          scp -i ~/.ssh/id_deploy -P "$SSH_PORT" \
+            deploy/deploy.sh \
+            "$SSH_USER@$SSH_HOST:/opt/book_reservation/deploy.sh"
 
       - name: Run deploy script on server
         env:
@@ -130,7 +133,10 @@ jobs:
           APP_VERSION: ${{ inputs.version }}
           GHCR_USER: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Executed from a file on the server, NOT streamed via `bash -s`:
+        # with a streamed script any stdin-reading command (docker compose
+        # run) consumes the remainder of the script and silently truncates
+        # the deploy.
         run: |
           ssh -i ~/.ssh/id_deploy -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
-            "IMAGE='$IMAGE' APP_VERSION='$APP_VERSION' GHCR_USER='$GHCR_USER' GHCR_TOKEN='$GHCR_TOKEN' bash -s" \
-            < deploy/deploy.sh
+            "IMAGE='$IMAGE' APP_VERSION='$APP_VERSION' GHCR_USER='$GHCR_USER' GHCR_TOKEN='$GHCR_TOKEN' bash /opt/book_reservation/deploy.sh"

@@ -89,8 +89,7 @@ can add required reviewers as a manual approval gate.
 **The repo is never cloned on the instance.** The server needs no git, no
 Python, and no GitHub credentials — only Docker. The application code ships
 inside the image pulled from GHCR; `docker-compose.yml` and `.env` are
-copied over by the workflow on every deploy; `deploy.sh` is streamed through
-the SSH connection and never written to the server's disk. The GHCR login
+copied over by the workflow on every deploy, as is `deploy.sh`. The GHCR login
 used to pull images is a short-lived token passed in per deploy, not stored.
 
 The server runs the app via Docker Compose. Layout on the instance:
@@ -105,8 +104,8 @@ The server runs the app via Docker Compose. Layout on the instance:
 
 The workflow first renders `.env` (from `DJANGO_SECRET_KEY`,
 `DJANGO_ALLOWED_HOSTS`, …) and copies it to the server together with
-`docker-compose.yml`. Then `deploy/deploy.sh` (streamed over SSH, never
-stored on the server):
+`docker-compose.yml` and `deploy.sh`. Then it executes `deploy.sh` on the
+server, which:
 
 1. Pins `IMAGE=ghcr.io/<owner>/<repo>:vX.Y.Z` in `/opt/book_reservation/.env`
    so compose always resolves to the exact released version.
