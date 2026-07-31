@@ -24,8 +24,17 @@ def healthz(_request):
     Anonymous health probe used by the Docker HEALTHCHECK and for
     verifying the expected version is live after a rollout.
     """
-    return JsonResponse({'status': 'ok', 'version': settings.APP_VERSION})
+    return JsonResponse({
+        'status': 'ok',
+        'version': settings.APP_VERSION,
+        'revision': settings.APP_REVISION,
+    })
 
+
+# Stamp the version on Django's own admin too, so it is identifiable from
+# every entry point into the deployment.
+admin.site.site_header = f'Book Reservation v{settings.APP_VERSION}'
+admin.site.site_title = f'Book Reservation v{settings.APP_VERSION}'
 
 urlpatterns = [
     re_path(r'^healthz$', healthz, name='healthz'),

@@ -126,8 +126,9 @@ body {
   position: relative;
   z-index: 2;
   font-size: .72rem;
-  color: var(--muted-on-dark);
-  opacity: .4;
+  /* Alpha on the colour rather than `opacity`, so the version pill inside
+     is not dimmed along with the copyright line. */
+  color: rgba(110,98,82,.55);
 }
 
 /* ---- Right panel: form ---- */

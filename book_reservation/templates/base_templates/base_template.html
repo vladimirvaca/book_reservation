@@ -1,10 +1,17 @@
 {% load static %}
 <!doctype html>
-<html lang="en">
+<!-- Data attributes make the running build readable from devtools and from JS
+     (see utilities.js), without parsing the page. -->
+<html lang="en" data-app-version="{{ app_version }}" data-app-revision="{{ app_revision }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="theme-color" content="#1a1611">
+
+    <!-- Deployed build identification (visible in "view source" / curl). -->
+    <meta name="application-name" content="Book Reservation">
+    <meta name="version" content="{{ app_release }}">
+    {% if app_revision %}<meta name="revision" content="{{ app_revision }}">{% endif %}
 
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/library.ico' %}" />
 
@@ -23,7 +30,7 @@
 
     {% block css %}{% endblock css %}
 
-    <title>Book Reservation</title>
+    <title>{% block title %}Book Reservation{% endblock %} · {{ app_release }}</title>
 </head>
 <body>
     {% block content %}{% endblock content %}

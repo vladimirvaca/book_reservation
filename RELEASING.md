@@ -7,8 +7,16 @@ The single source of truth is the `VERSION` file at the repo root; the app
 exposes it at runtime via `GET /healthz`:
 
 ```json
-{"status": "ok", "version": "1.0.0"}
+{"status": "ok", "version": "1.0.0", "revision": "9f2c1ab"}
 ```
+
+`revision` is the short git SHA of the image, injected by CI through the
+`APP_REVISION` build arg (empty for images built locally without it).
+
+The same build is surfaced in the UI — browser tab title, landing/sign-in
+footer pill, dashboard sidebar, `<meta name="version">`, and a console
+banner — so a rollout can be confirmed by simply loading a page. See the
+README's "Releases" section for the full list.
 
 The release pipeline refuses to run if the pushed tag does not match `VERSION`.
 
@@ -68,7 +76,7 @@ sed -i 's|^IMAGE=.*|IMAGE=ghcr.io/<owner>/<repo>:v1.1.0|' .env
 docker compose pull web
 docker compose run --rm -T web python manage.py migrate --noinput
 docker compose up -d --force-recreate web
-curl http://127.0.0.1:8000/healthz   # should report the new version
+curl http://127.0.0.1:8000/healthz   # should report the new version + revision
 ```
 
 ## Running behind Traefik

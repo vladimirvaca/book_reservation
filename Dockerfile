@@ -43,6 +43,11 @@ RUN addgroup --system appgroup \
 
 USER appuser
 
+# Git SHA of the build, surfaced in the UI and at /healthz. Declared this late
+# so passing a new revision only rebuilds this layer, not the whole image.
+ARG APP_REVISION=""
+ENV APP_REVISION=$APP_REVISION
+
 # SQLite database (plus its WAL/SHM sidecar files) and media uploads live in
 # /data; mount it as a volume at runtime:
 #   -v /opt/book_reservation/data:/data

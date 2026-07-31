@@ -90,6 +90,15 @@
                 <i class="fas fa-sign-out-alt"></i> Sign Out
             </button>
         </form>
+
+        <!-- Deployed build — visible on every dashboard page -->
+        <a href="{{ app_release_url }}" target="_blank" rel="noopener"
+           class="lbr-sidebar-version"
+           title="Release {{ app_release }} — {% if app_revision %}build {{ app_revision }}{% else %}local build{% endif %}">
+            <span class="lbr-version-dot"></span>
+            <span class="lbr-version-tag">{{ app_release }}</span>
+            <span class="lbr-version-sha">{{ app_revision|default:"local" }}</span>
+        </a>
     </div>
 </nav>
 

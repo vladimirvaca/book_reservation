@@ -1,4 +1,24 @@
 
+/* ============================================================
+   Build stamp
+   Exposes the deployed release to the console and to page scripts, so a
+   support question ("which version are you on?") is answered by opening
+   devtools on any page.
+   ============================================================ */
+
+var LBR_BUILD = {
+    version: document.documentElement.getAttribute('data-app-version') || 'unknown',
+    revision: document.documentElement.getAttribute('data-app-revision') || 'local'
+};
+
+console.info(
+    '%c Book Reservation %c v' + LBR_BUILD.version + ' %c ' + LBR_BUILD.revision + ' ',
+    'background:#1a1611;color:#e8c97e;font-weight:600;padding:2px 0;',
+    'background:#c9912a;color:#1a1611;font-weight:600;padding:2px 0;',
+    'background:#231f19;color:#8c7f6d;padding:2px 0;'
+);
+
+
 var forms = document.getElementsByClassName('needs-validation');
 
 var validation = Array.prototype.filter.call(forms, function (form) {

@@ -189,7 +189,10 @@
             </div>
         </div>
         <hr class="lbr-footer-hr">
-        <p class="lbr-footer-copy">&copy; 2018–{% now "Y" %} Book Reservation</p>
+        <p class="lbr-footer-copy">
+            &copy; 2018–{% now "Y" %} Book Reservation
+            {% include 'partials/version_pill.html' %}
+        </p>
     </div>
 </footer>
 

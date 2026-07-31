@@ -99,6 +99,10 @@ jobs:
         with:
           context: .
           push: true
+          # Baked into the image so the running build is identifiable in the
+          # UI and at /healthz, not just from the image labels.
+          build-args: |
+            APP_REVISION=${{ github.sha }}
           # Layer cache stored in GitHub Actions cache — speeds up rebuilds.
           cache-from: type=gha
           cache-to: type=gha,mode=max

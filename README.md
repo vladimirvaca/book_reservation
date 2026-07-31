@@ -118,7 +118,21 @@ Superseded CI runs on the same branch are cancelled automatically, and Docker bu
 
 ### Releases
 
-The `VERSION` file is the single source of truth, and the running app exposes its version at `GET /healthz`. Every `vX.Y.Z` tag produces a GitHub Release plus an immutable `ghcr.io/<owner>/<repo>:vX.Y.Z` image; deploying that image to a host is a manual step, documented in [RELEASING.md](RELEASING.md).
+The `VERSION` file is the single source of truth. Every `vX.Y.Z` tag produces a GitHub Release plus an immutable `ghcr.io/<owner>/<repo>:vX.Y.Z` image; deploying that image to a host is a manual step, documented in [RELEASING.md](RELEASING.md).
+
+The running build is identifiable from anywhere in the app, so you never have to guess what is deployed:
+
+| Where | What you see |
+|---|---|
+| Browser tab | `Book Reservation · v1.0.3` |
+| Landing page footer / sign-in page | Version pill linking to that release's notes |
+| Dashboard sidebar | `v1.0.3` + the short git SHA of the image (`local` when run from a checkout) |
+| Page source | `<meta name="version">`, `<meta name="revision">`, and `data-app-version` on `<html>` |
+| Browser console | Build banner printed on every page load |
+| `GET /healthz` | `{"status": "ok", "version": "1.0.3", "revision": "9f2c1ab"}` |
+| Django admin | Version in the site header |
+
+The git SHA comes from the `APP_REVISION` build arg, which CI passes on every image build.
 
 ## Project structure
 

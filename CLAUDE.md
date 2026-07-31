@@ -18,7 +18,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-Run the test suite with `python manage.py test` (80 tests across all apps). CI lints with `pylint --rcfile=.pylintrc --errors-only` and `isort --check-only`.
+Run the test suite with `python manage.py test` (85 tests across all apps). CI lints with `pylint --rcfile=.pylintrc --errors-only` and `isort --check-only`.
 
 ## Architecture
 
@@ -65,7 +65,11 @@ urlpatterns = [
 ]
 ```
 
-The root URLconf (`book_reservation/urls.py`) also defines `GET /healthz` — an anonymous probe returning `{"status": "ok", "version": <APP_VERSION>}`, used by the Docker HEALTHCHECK and for verifying a rollout landed.
+The root URLconf (`book_reservation/urls.py`) also defines `GET /healthz` — an anonymous probe returning `{"status": "ok", "version": <APP_VERSION>, "revision": <APP_REVISION>}`, used by the Docker HEALTHCHECK and for verifying a rollout landed. It also stamps the version onto `admin.site.site_header`.
+
+### Version visibility
+
+`book_reservation/context_processors.py:release` puts `app_version`, `app_release` (`vX.Y.Z`), `app_revision` (short git SHA, empty locally) and `app_release_url` into every template context. Surfaces: tab title (`{% block title %}` + version in `base_template.html`), `<meta name="version">` / `data-app-version` on `<html>`, the `partials/version_pill.html` badge (landing footer + sign-in page), the dashboard sidebar footer, and a console banner from `utilities.js`. `APP_REVISION` reaches the container via the Dockerfile `ARG`/`ENV`, passed by both workflows as `build-args: APP_REVISION=${{ github.sha }}`.
 
 ### Models
 
@@ -86,7 +90,7 @@ class BookForm(forms.ModelForm):
 ### Templates
 
 `book_reservation/templates/` is the template root (configured in `settings.py`).  
-`base_templates/base_template.html` is the base layout with Bootstrap 4, jQuery 3, and DataTables. All pages extend it via `{% extends %}`. Reusable modal partials live in `templates/forms/`.
+`base_templates/base_template.html` is the base layout with Bootstrap 4, jQuery 3, and DataTables. All pages extend it via `{% extends %}`. Reusable modal partials live in `templates/forms/`; other shared snippets in `templates/partials/`.
 
 ### Settings
 

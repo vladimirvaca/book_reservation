@@ -8,6 +8,15 @@ BASE_DIR = Path(__file__).resolve().parent
 # checks that git tags match this file.
 APP_VERSION = (BASE_DIR.parent / 'VERSION').read_text(encoding='utf-8').strip()
 
+# Short git SHA of the build, baked into the image by CI (docker build-arg).
+# Empty when running from a checkout — which marks the build as "local".
+APP_REVISION = os.environ.get('APP_REVISION', '').strip()[:7]
+
+# Used to link the version shown in the UI to its release notes.
+APP_SOURCE_URL = os.environ.get(
+    'APP_SOURCE_URL', 'https://github.com/vladimirvaca/book_reservation'
+).rstrip('/')
+
 # ── Security ──────────────────────────────────────────────────────────────────
 # Override DJANGO_SECRET_KEY in production via environment variable.
 SECRET_KEY = os.environ.get(
@@ -75,6 +84,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'book_reservation.context_processors.release',
             ],
         },
     },

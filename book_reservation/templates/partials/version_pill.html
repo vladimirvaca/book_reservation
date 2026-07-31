@@ -1,0 +1,10 @@
+{% comment %}
+Deployed-release pill, linking to the matching release notes.
+Include with `variant='light'` on light backgrounds:
+    {% include 'partials/version_pill.html' with variant='light' %}
+{% endcomment %}
+<a class="lbr-version-pill{% if variant %} lbr-version-pill--{{ variant }}{% endif %}"
+   href="{{ app_release_url }}" target="_blank" rel="noopener"
+   title="Release {{ app_release }} — {% if app_revision %}build {{ app_revision }}{% else %}local build{% endif %}">
+    <i class="fas fa-code-branch"></i>{{ app_release }}
+</a>

@@ -439,8 +439,9 @@ body {
 }
 .lbr-footer-copy {
   font-size: .72rem;
-  color: var(--muted-on-dark);
-  opacity: .45;
+  /* Alpha on the colour rather than `opacity`, so the version pill inside
+     is not dimmed along with the copyright line. */
+  color: rgba(110,98,82,.45);
   margin: 0;
   text-align: center;
   letter-spacing: .3px;

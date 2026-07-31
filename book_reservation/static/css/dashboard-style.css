@@ -121,6 +121,48 @@ button.lbr-nav-link {
   flex-shrink: 0;
 }
 
+/* Deployed build stamp — links to the matching release notes */
+.lbr-sidebar-version {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin-top: .6rem;
+  padding: .3rem .625rem;
+  border-radius: 7px;
+  color: rgba(232,224,208,.32);
+  font-size: .68rem;
+  font-weight: 400;
+  letter-spacing: .4px;
+  text-decoration: none;
+  transition: background .15s, color .15s;
+}
+.lbr-sidebar-version:hover {
+  background: rgba(255,255,255,.05);
+  color: rgba(232,224,208,.75);
+  text-decoration: none;
+}
+/* Steady "this build is live" indicator */
+.lbr-version-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-dim);
+  flex-shrink: 0;
+}
+.lbr-version-tag { font-weight: 500; }
+.lbr-sidebar-version:hover .lbr-version-tag { color: var(--gold-light); }
+/* Short git SHA of the image; "local" when running from a checkout */
+.lbr-version-sha {
+  margin-left: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .62rem;
+  letter-spacing: 0;
+  opacity: .7;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Backdrop behind the off-canvas sidebar (mobile only) */
 .lbr-sidebar-backdrop {
   position: fixed;

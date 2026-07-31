@@ -26,6 +26,48 @@ class HealthzViewTests(TestCase):
         payload = response.json()
         self.assertEqual(payload['status'], 'ok')
         self.assertEqual(payload['version'], settings.APP_VERSION)
+        self.assertEqual(payload['revision'], settings.APP_REVISION)
+
+
+class VersionSurfaceTests(TestCase):
+    '''
+    The deployed release must be identifiable from the rendered pages, not
+    only from /healthz — tab title, meta tags, and a visible badge.
+    '''
+
+    def setUp(self):
+        self.release = f'v{settings.APP_VERSION}'
+
+    def test_tab_title_and_meta_carry_the_version(self):
+        html = self.client.get(reverse('index')).content.decode()
+        self.assertIn(f'<title>Book Reservation · {self.release}</title>', html)
+        self.assertIn(f'<meta name="version" content="{self.release}">', html)
+        self.assertIn(
+            f'data-app-version="{settings.APP_VERSION}"', html)
+
+    def test_landing_footer_shows_version_badge(self):
+        response = self.client.get(reverse('index'))
+        self.assertContains(response, 'lbr-version-pill')
+        self.assertContains(response, self.release)
+
+    def test_signin_page_shows_version_badge(self):
+        response = self.client.get(reverse('signin'))
+        self.assertContains(response, 'lbr-version-pill')
+        self.assertContains(response, self.release)
+
+    def test_dashboard_sidebar_shows_version(self):
+        user = get_user_model().objects.create_user(
+            username='librarian', password=PASSWORD)
+        self.client.force_login(user)
+        response = self.client.get(reverse('dashboard'))
+        self.assertContains(response, 'lbr-sidebar-version')
+        self.assertContains(response, self.release)
+
+    def test_version_links_to_matching_release_notes(self):
+        response = self.client.get(reverse('index'))
+        self.assertContains(
+            response,
+            f'{settings.APP_SOURCE_URL}/releases/tag/{self.release}')
 
 
 class IndexViewTests(TestCase):

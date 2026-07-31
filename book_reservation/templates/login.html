@@ -40,7 +40,10 @@
             </div>
         </div>
 
-        <p class="lbr-auth-footer-note">&copy; 2018–{% now "Y" %} Book Reservation</p>
+        <p class="lbr-auth-footer-note">
+            &copy; 2018–{% now "Y" %} Book Reservation
+            {% include 'partials/version_pill.html' %}
+        </p>
     </div>
 
     <!-- ======================================================
@@ -105,7 +108,10 @@
                 <p class="lbr-demo-creds">demo&nbsp;&middot;&nbsp;demo-library-2026</p>
             </div>
 
-            <p class="lbr-auth-copyright">&copy; 2018–{% now "Y" %} Book Reservation</p>
+            <p class="lbr-auth-copyright">
+                &copy; 2018–{% now "Y" %} Book Reservation
+                {% include 'partials/version_pill.html' with variant='light' %}
+            </p>
         </div>
     </div>
 
